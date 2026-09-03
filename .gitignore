@@ -1,0 +1,11 @@
+build/
+dist/
+.cache/
+compile_commands.json
+*.log
+*.elf
+*.hex
+*.bin
+*.map
+.idea/
+.vscode/

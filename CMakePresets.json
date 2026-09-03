@@ -1,0 +1,60 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "host-base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "BUILD_TESTING": "ON",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "host-gcc",
+            "inherits": "host-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc"
+            }
+        },
+        {
+            "name": "host-clang",
+            "inherits": "host-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang"
+            }
+        },
+        {
+            "name": "host-sanitize",
+            "inherits": "host-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "EMBEDDEDLIB_ENABLE_SANITIZERS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {"name": "host-gcc", "configurePreset": "host-gcc"},
+        {"name": "host-clang", "configurePreset": "host-clang"},
+        {"name": "host-sanitize", "configurePreset": "host-sanitize"}
+    ],
+    "testPresets": [
+        {
+            "name": "host-gcc",
+            "configurePreset": "host-gcc",
+            "output": {"outputOnFailure": true}
+        },
+        {
+            "name": "host-clang",
+            "configurePreset": "host-clang",
+            "output": {"outputOnFailure": true}
+        },
+        {
+            "name": "host-sanitize",
+            "configurePreset": "host-sanitize",
+            "output": {"outputOnFailure": true}
+        }
+    ]
+}

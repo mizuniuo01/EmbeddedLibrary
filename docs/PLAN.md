@@ -42,9 +42,13 @@ docs/components/<component>.md
 
 ## 4. 阶段路线
 
-### P0：治理与构建基础 — 未开始
+### P0：治理与构建基础 — 已完成
 
 建立 README、CMake/CTest 主机入口、Presets、格式检查、严格告警、静态分析入口，以及组件命名、目录、构建目标、测试命名、成熟度和文档模板。不实现公共组件。
+
+验证证据：GCC 13.3.0、CMake/Ninja 主机构建和 `repository.smoke` CTest 已通过；
+`sh tools/check.sh host-gcc` 已通过格式、编译、CTest、clang-tidy 和 cppcheck。当前环境未安装
+Clang 编译器，因此 Clang 构建留给 CI 执行。P0 未加入公共组件、BSP、Driver 或 RTOS 实现。
 
 ### P1：基础类型、时间和数据结构 — 未开始
 

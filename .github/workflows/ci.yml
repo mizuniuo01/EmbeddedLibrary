@@ -1,0 +1,38 @@
+name: host-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install checks
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends clang clang-tidy cppcheck
+      - name: Configure, build, test and analyze
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+        run: sh tools/check.sh host-${{ matrix.compiler }}
+
+  sanitizer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Configure, build and test with sanitizers
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends clang
+          cmake --preset host-sanitize
+          cmake --build --preset host-sanitize
+          ctest --preset host-sanitize
