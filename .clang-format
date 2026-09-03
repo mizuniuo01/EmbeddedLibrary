@@ -1,0 +1,85 @@
+# .clang-format — 个人嵌入式 C 代码风格规范 v1.1.0
+# 适用工具：LLVM clang-format 21.x
+
+BasedOnStyle: LLVM
+
+# 3.1 花括号与缩进
+BreakBeforeBraces: Linux
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+PPIndentWidth: 4
+IndentPPDirectives: AfterHash
+IndentCaseLabels: true
+
+# 3.2 列宽与换行
+ColumnLimit: 100
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+AlwaysBreakBeforeMultilineStrings: true
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 120
+PenaltyBreakOpenParenthesis: 1000
+BinPackArguments: true
+BinPackParameters: BinPack
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
+BreakStringLiterals: true
+BreakAdjacentStringLiterals: true
+
+# 括号后的参数使用固定续行缩进；长表达式的操作数使用视觉对齐
+AlignAfterOpenBracket: DontAlign
+AlignOperands: Align
+
+# 3.5 指针与限定符
+PointerAlignment: Right
+DerivePointerAlignment: false
+QualifierAlignment: Left
+
+# 3.3 空格与空行
+SpaceBeforeParens: ControlStatements
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeSquareBrackets: false
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAroundPointerQualifiers: Before
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+MaxEmptyLinesToKeep: 1
+KeepEmptyLines:
+  AtStartOfBlock: false
+
+# 连续声明和赋值仅由人工在确有可读性收益时局部对齐
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveBitFields: None
+AlignConsecutiveMacros: None
+AlignTrailingComments:
+  Kind: Leave
+  OverEmptyLines: 0
+AlignEscapedNewlines: DontAlign
+
+# 3.1 短控制流和函数不得收缩为单行
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+
+# 4.6 注释
+ReflowComments: false
+SpacesBeforeTrailingComments: 1
+CommentPragmas: '^\[CODING\]'
+
+# 5.4 include 顺序由人工按语义维护
+SortIncludes: false
+DisableFormat: false
+
+# 保留原配置对 C 代码换行选择的显式权重
+PenaltyBreakBeforeFirstCallParameter: 1000
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
+PenaltyExcessCharacter: 1000000
+PenaltyIndentedWhitespace: 0
