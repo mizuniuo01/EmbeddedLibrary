@@ -42,7 +42,7 @@ docs/components/<component>.md
 
 ## 4. 阶段路线
 
-### P0：治理与构建基础 — 进行中
+### P0：治理与构建基础 — 已完成
 
 建立 README、CMake/CTest 主机入口、Presets、格式检查、严格告警、静态分析入口，以及组件命名、目录、构建目标、测试命名、成熟度和文档模板。不实现公共组件。
 
@@ -53,9 +53,9 @@ BSP、Driver 或 RTOS 实现。
 
 本地修复验证：`sh tools/check.sh host-gcc`、`sh tools/check.sh host-clang` 和
 `sh tools/check.sh host-sanitize` 均通过；Sanitizer 编译/链接命令包含 ASan/UBSan，
-`repository.sanitizer_probe` 通过；使用 Kitware CMake 3.20.6 的临时工具链构建通过。待
-推送后确认 GitHub Actions 的 `host (gcc)`、`host (clang)`、`sanitizer` 和 `cmake-minimum`
-四项任务成功，再将 P0 状态改回“已完成”。
+`repository.sanitizer_probe` 通过；使用 Kitware CMake 3.20.6 的临时工具链构建通过。GitHub
+Actions 运行 `33846771581` 中的 `host (gcc)`、`host (clang)`、`sanitizer` 和 `cmake-minimum`
+四项任务均成功，P0 验证闭环完成。
 
 ### P1：基础类型、时间和数据结构 — 未开始
 
