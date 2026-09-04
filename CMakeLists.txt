@@ -8,6 +8,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+option(EMBEDDEDLIB_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+
 add_library(embeddedlib_project_options INTERFACE)
 target_compile_features(embeddedlib_project_options INTERFACE c_std_11)
 
@@ -22,6 +24,21 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
         -Wstrict-prototypes
         -Wmissing-prototypes
         -Werror
+    )
+endif()
+
+if(EMBEDDEDLIB_ENABLE_SANITIZERS)
+    if(NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        message(FATAL_ERROR "EMBEDDEDLIB_ENABLE_SANITIZERS requires Clang")
+    endif()
+
+    target_compile_options(embeddedlib_project_options INTERFACE
+        -fsanitize=address,undefined
+        -fno-omit-frame-pointer
+        -fno-sanitize-recover=all
+    )
+    target_link_options(embeddedlib_project_options INTERFACE
+        -fsanitize=address,undefined
     )
 endif()
 

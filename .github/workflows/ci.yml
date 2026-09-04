@@ -4,35 +4,64 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: host-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   host:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
         compiler: [gcc, clang]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Install checks
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends clang clang-tidy cppcheck
+      - uses: ./.github/actions/setup-host-tools
       - name: Configure, build, test and analyze
-        env:
-          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
         run: sh tools/check.sh host-${{ matrix.compiler }}
 
   sanitizer:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ./.github/actions/setup-host-tools
       - name: Configure, build and test with sanitizers
+        env:
+          ASAN_OPTIONS: halt_on_error=1:detect_leaks=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+          LLVM_SYMBOLIZER_PATH: /usr/bin/llvm-symbolizer-21
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends clang
           cmake --preset host-sanitize
-          cmake --build --preset host-sanitize
+          cmake --build --preset host-sanitize --verbose
           ctest --preset host-sanitize
+
+  cmake-minimum:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ./.github/actions/setup-host-tools
+      - name: Install CMake 3.20.6
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/cmake-3.20.6-linux-x86_64.tar.gz"
+          curl --fail --location --silent --show-error \
+            https://github.com/Kitware/CMake/releases/download/v3.20.6/cmake-3.20.6-linux-x86_64.tar.gz \
+            --output "$archive"
+          echo "458777097903b0f35a0452266b923f0a2f5b62fe331e636e2dcc4b636b768e36  $archive" |
+            sha256sum --check --strict
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/cmake-3.20.6-linux-x86_64/bin" >> "$GITHUB_PATH"
+      - name: Validate the minimum CMake version
+        run: |
+          cmake --version | grep '^cmake version 3\.20\.6$'
+          sh tools/check.sh host-gcc

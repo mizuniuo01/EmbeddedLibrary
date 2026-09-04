@@ -1,0 +1,51 @@
+name: Setup host validation tools
+description: Install the pinned host compilers, LLVM checks, and analysis tools.
+
+runs:
+  using: composite
+  steps:
+    - name: Add the LLVM 21 package repository
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends ca-certificates curl gnupg
+
+        key_file="$RUNNER_TEMP/apt.llvm.org.asc"
+        keyring_file="$RUNNER_TEMP/apt.llvm.org.gpg"
+        curl --fail --silent --show-error \
+          https://apt.llvm.org/llvm-snapshot.gpg.key \
+          --output "$key_file"
+
+        expected_fingerprint="6084F3CF814B57C1CF12EFD515CF4D18AF4F7421"
+        actual_fingerprint="$(
+          gpg --show-keys --with-colons "$key_file" |
+            awk -F: '$1 == "fpr" { print $10; exit }'
+        )"
+        if [[ "$actual_fingerprint" != "$expected_fingerprint" ]]; then
+          echo "unexpected apt.llvm.org signing key fingerprint" >&2
+          exit 1
+        fi
+
+        gpg --dearmor --yes --output "$keyring_file" "$key_file"
+        sudo install -m 0644 "$keyring_file" /usr/share/keyrings/apt.llvm.org.gpg
+        echo \
+          "deb [signed-by=/usr/share/keyrings/apt.llvm.org.gpg] https://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" |
+          sudo tee /etc/apt/sources.list.d/llvm-21.list >/dev/null
+
+    - name: Install host validation tools
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends \
+          gcc-13 \
+          clang-21 \
+          clang-format-21 \
+          clang-tidy-21 \
+          llvm-21 \
+          libclang-rt-21-dev \
+          cmake \
+          ninja-build \
+          ripgrep \
+          cppcheck

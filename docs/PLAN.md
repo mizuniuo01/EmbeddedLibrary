@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：总体规划已确定，等待用户手动开启阶段
+> 计划状态：P0 基础设施修复与重新验证进行中，后续阶段等待用户手动开启
 >
 > 规范基线：架构规范 v1.3.0、代码风格规范 v1.2.0、仓库工作流规范 v1.0.0
 
@@ -42,13 +42,20 @@ docs/components/<component>.md
 
 ## 4. 阶段路线
 
-### P0：治理与构建基础 — 已完成
+### P0：治理与构建基础 — 进行中
 
 建立 README、CMake/CTest 主机入口、Presets、格式检查、严格告警、静态分析入口，以及组件命名、目录、构建目标、测试命名、成熟度和文档模板。不实现公共组件。
 
-验证证据：GCC 13.3.0、CMake/Ninja 主机构建和 `repository.smoke` CTest 已通过；
-`sh tools/check.sh host-gcc` 已通过格式、编译、CTest、clang-tidy 和 cppcheck。当前环境未安装
-Clang 编译器，因此 Clang 构建留给 CI 执行。P0 未加入公共组件、BSP、Driver 或 RTOS 实现。
+重新验证原因：首次 P0 CI 的 GCC/Clang 任务因缺少 `clang-format-21` 未进入构建；原
+`host-sanitize` Preset 只设置了未被 CMake 使用的变量，没有实际启用 ASan/UBSan。修复后须由
+GCC 13、Clang 21、真实 ASan/UBSan 和 CMake 3.20.6 四项 CI 验证共同闭环。P0 未加入公共组件、
+BSP、Driver 或 RTOS 实现。
+
+本地修复验证：`sh tools/check.sh host-gcc`、`sh tools/check.sh host-clang` 和
+`sh tools/check.sh host-sanitize` 均通过；Sanitizer 编译/链接命令包含 ASan/UBSan，
+`repository.sanitizer_probe` 通过；使用 Kitware CMake 3.20.6 的临时工具链构建通过。待
+推送后确认 GitHub Actions 的 `host (gcc)`、`host (clang)`、`sanitizer` 和 `cmake-minimum`
+四项任务成功，再将 P0 状态改回“已完成”。
 
 ### P1：基础类型、时间和数据结构 — 未开始
 

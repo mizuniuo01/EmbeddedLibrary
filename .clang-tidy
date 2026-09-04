@@ -7,6 +7,6 @@ Checks: >-
   -cert-err33-c,
   -cert-dcl37-c,
   -cert-dcl51-cpp
-WarningsAsErrors: ''
-HeaderFilterRegex: '(^|/)(libraries|services|adapters|tests)/.*\\.(c|h)$'
+WarningsAsErrors: '*'
+HeaderFilterRegex: '(^|/)(libraries|services|adapters|tests)/.*\.(c|h)$'
 FormatStyle: file

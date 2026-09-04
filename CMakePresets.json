@@ -1,5 +1,10 @@
 {
-    "version": 3,
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
     "configurePresets": [
         {
             "name": "host-base",
@@ -16,21 +21,21 @@
             "name": "host-gcc",
             "inherits": "host-base",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "gcc"
+                "CMAKE_C_COMPILER": "gcc-13"
             }
         },
         {
             "name": "host-clang",
             "inherits": "host-base",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang"
+                "CMAKE_C_COMPILER": "clang-21"
             }
         },
         {
             "name": "host-sanitize",
             "inherits": "host-base",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_C_COMPILER": "clang-21",
                 "EMBEDDEDLIB_ENABLE_SANITIZERS": "ON"
             }
         }
@@ -44,17 +49,20 @@
         {
             "name": "host-gcc",
             "configurePreset": "host-gcc",
-            "output": {"outputOnFailure": true}
+            "output": {"outputOnFailure": true},
+            "execution": {"noTestsAction": "error", "stopOnFailure": true}
         },
         {
             "name": "host-clang",
             "configurePreset": "host-clang",
-            "output": {"outputOnFailure": true}
+            "output": {"outputOnFailure": true},
+            "execution": {"noTestsAction": "error", "stopOnFailure": true}
         },
         {
             "name": "host-sanitize",
             "configurePreset": "host-sanitize",
-            "output": {"outputOnFailure": true}
+            "output": {"outputOnFailure": true},
+            "execution": {"noTestsAction": "error", "stopOnFailure": true}
         }
     ]
 }

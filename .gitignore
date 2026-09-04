@@ -2,11 +2,7 @@ build/
 dist/
 .cache/
 compile_commands.json
-*.log
-*.elf
-*.hex
-*.bin
-*.map
+CMakeUserPresets.json
 .idea/
 .vscode/
 .DS_Store
