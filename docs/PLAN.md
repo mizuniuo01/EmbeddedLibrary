@@ -63,7 +63,8 @@ Actions 运行 `33846771581` 中的 `host (gcc)`、`host (clang)`、`sanitizer` 
 
 阶段设计与批次证据见 [docs/plans/P1_FOUNDATION.md](plans/P1_FOUNDATION.md)。基础契约批和编码算法批
 已完成规范整改，并通过主机 GCC/Clang、Sanitizer、静态分析和 ARM compile-only 验证；有界容器批、
-远端 CI 和 P1 最终阶段状态更新尚未完成。
+已完成第一、第二批；远端 CI 运行 `33955779208` 中的 `host (gcc)`、`host (clang)`、`sanitizer`、
+`cmake-minimum` 和 `arm-cortex-m0plus` 五项任务均成功。第三批有界容器和 P1 最终阶段状态更新尚未完成。
 
 ### P2：控制与算法库 — 未开始
 
