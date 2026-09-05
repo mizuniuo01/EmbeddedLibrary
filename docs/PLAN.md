@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：P0 基础设施修复与重新验证进行中，后续阶段等待用户手动开启
+> 计划状态：P1 基础契约批已完成，后续 P1 批次按阶段计划推进
 >
 > 规范基线：架构规范 v1.3.0、代码风格规范 v1.2.0、仓库工作流规范 v1.0.0
 
@@ -57,9 +57,13 @@ BSP、Driver 或 RTOS 实现。
 Actions 运行 `33846771581` 中的 `host (gcc)`、`host (clang)`、`sanitizer` 和 `cmake-minimum`
 四项任务均成功，P0 验证闭环完成。
 
-### P1：基础类型、时间和数据结构 — 未开始
+### P1：基础类型、时间和数据结构 — 进行中
 
 实现稳定状态码、单调时间与 tick 回绕计算、限幅和有限值检查、字节 FIFO、固定元素队列、对象池、双缓冲快照、CRC、显式大小端编解码及必要的 COBS/SLIP 等基础能力。
+
+阶段设计与批次证据见 [docs/plans/P1_FOUNDATION.md](plans/P1_FOUNDATION.md)。基础契约批和编码算法批
+已完成规范整改，并通过主机 GCC/Clang、Sanitizer、静态分析和 ARM compile-only 验证；有界容器批、
+远端 CI 和 P1 最终阶段状态更新尚未完成。
 
 ### P2：控制与算法库 — 未开始
 

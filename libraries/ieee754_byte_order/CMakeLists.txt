@@ -1,0 +1,3 @@
+add_library(ieee754_byte_order STATIC src/ieee754_byte_order.c)
+target_include_directories(ieee754_byte_order PUBLIC include)
+target_link_libraries(ieee754_byte_order PUBLIC byte_order PRIVATE embeddedlib::project_options)

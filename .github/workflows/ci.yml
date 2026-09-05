@@ -65,3 +65,17 @@ jobs:
         run: |
           cmake --version | grep '^cmake version 3\.20\.6$'
           sh tools/check.sh host-gcc
+
+  arm-cortex-m0plus:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install ARM GNU toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends gcc-arm-none-eabi
+      - name: Compile production components
+        run: |
+          cmake --preset arm-cortex-m0plus-gcc
+          cmake --build --preset arm-cortex-m0plus-gcc

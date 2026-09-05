@@ -38,12 +38,25 @@
                 "CMAKE_C_COMPILER": "clang-21",
                 "EMBEDDEDLIB_ENABLE_SANITIZERS": "ON"
             }
+        },
+        {
+            "name": "arm-cortex-m0plus-gcc",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_C_COMPILER": "arm-none-eabi-gcc",
+                "CMAKE_TRY_COMPILE_TARGET_TYPE": "STATIC_LIBRARY",
+                "CMAKE_C_FLAGS": "-mcpu=cortex-m0plus -mthumb -ffreestanding -Os"
+            }
         }
     ],
     "buildPresets": [
         {"name": "host-gcc", "configurePreset": "host-gcc"},
         {"name": "host-clang", "configurePreset": "host-clang"},
         {"name": "host-sanitize", "configurePreset": "host-sanitize"}
+        ,{"name": "arm-cortex-m0plus-gcc", "configurePreset": "arm-cortex-m0plus-gcc"}
     ],
     "testPresets": [
         {

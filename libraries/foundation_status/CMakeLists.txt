@@ -1,0 +1,3 @@
+add_library(foundation_status INTERFACE)
+target_include_directories(foundation_status INTERFACE include)
+target_link_libraries(foundation_status INTERFACE embeddedlib::project_options)

@@ -57,6 +57,27 @@ fi
 rg --files -0 -g '*.c' -g '*.h' -g '!build/**' |
     xargs -0 -r clang-format-21 --style=file --dry-run --Werror
 
+for source_file in $(rg --files -g '*.c' -g '!build/**'); do
+    head -n 20 "$source_file" | rg -q '@file' || {
+        echo "$source_file: missing Doxygen @file header" >&2
+        exit 1
+    }
+    head -n 20 "$source_file" | rg -q '@brief' || {
+        echo "$source_file: missing Doxygen @brief header" >&2
+        exit 1
+    }
+done
+
+if rg -n '^/\*\*.*@(param|return|retval)' libraries tests -g '*.c'; then
+    echo "function Doxygen tags must use the multiline format" >&2
+    exit 1
+fi
+
+if rg -n '@file|@param|@return|@retval' libraries tests -g '*.h'; then
+    echo "header files must not contain file or function Doxygen documentation" >&2
+    exit 1
+fi
+
 cmake --preset "$preset"
 cmake --build --preset "$preset"
 ctest --preset "$preset"

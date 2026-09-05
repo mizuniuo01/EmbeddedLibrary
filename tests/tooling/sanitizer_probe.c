@@ -14,6 +14,10 @@
 #    error "UndefinedBehaviorSanitizer instrumentation is not enabled"
 #endif
 
+/**
+ * @brief 验证当前编译目标已启用 AddressSanitizer 和 UBSan。
+ * @return 探针成功运行时返回 0。
+ */
 int main(void)
 {
     return 0;

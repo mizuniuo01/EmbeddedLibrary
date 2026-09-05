@@ -1,0 +1,7 @@
+add_subdirectory(foundation_status)
+add_subdirectory(tick32)
+add_subdirectory(numeric)
+add_subdirectory(byte_order)
+add_subdirectory(ieee754_byte_order)
+add_subdirectory(crc)
+add_subdirectory(cobs)
