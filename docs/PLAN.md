@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：P1 基础契约批已完成，后续 P1 批次按阶段计划推进
+> 计划状态：P1 第一、第二批已完成；第三批本地实现与验证完成，等待远端 CI
 >
 > 规范基线：架构规范 v1.3.0、代码风格规范 v1.2.0、仓库工作流规范 v1.0.0
 
@@ -61,10 +61,10 @@ Actions 运行 `33846771581` 中的 `host (gcc)`、`host (clang)`、`sanitizer` 
 
 实现稳定状态码、单调时间与 tick 回绕计算、限幅和有限值检查、字节 FIFO、固定元素队列、对象池、双缓冲快照、CRC、显式大小端编解码及必要的 COBS/SLIP 等基础能力。
 
-阶段设计与批次证据见 [docs/plans/P1_FOUNDATION.md](plans/P1_FOUNDATION.md)。基础契约批和编码算法批
-已完成规范整改，并通过主机 GCC/Clang、Sanitizer、静态分析和 ARM compile-only 验证；有界容器批、
-已完成第一、第二批；远端 CI 运行 `33955779208` 中的 `host (gcc)`、`host (clang)`、`sanitizer`、
-`cmake-minimum` 和 `arm-cortex-m0plus` 五项任务均成功。第三批有界容器和 P1 最终阶段状态更新尚未完成。
+阶段设计与批次证据见 [docs/plans/P1_FOUNDATION.md](plans/P1_FOUNDATION.md)。第一、第二批已完成，
+其远端 CI 运行 `33955779208` 的五项任务均成功。
+第三批有界容器已实现，完成本地 GCC/Clang、Sanitizer、静态分析及 ARM compile-only 验证，
+等待提交后的远端五项 CI（含 CMake 3.20.6）确认。P1 最终收尾仍须用户手动推进。
 
 ### P2：控制与算法库 — 未开始
 

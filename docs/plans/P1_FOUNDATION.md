@@ -1,6 +1,6 @@
 # P1 基础类型、时间与数据结构阶段设计
 
-状态：进行中（基础契约批和编码算法批完成，等待第三批规划）
+状态：进行中（第一、第二批完成；第三批本地实现与验证完成，等待远端 CI）
 规范基线：架构规范 v1.3.0、代码风格规范 v1.2.0
 
 ## 1. 已冻结的总体约束
@@ -71,3 +71,61 @@ INVALID_ARGUMENT；NaN/Inf 为 INVALID_DATA；失败不改 result。
 - 结构检查：禁止头文件文件头/函数 Doxygen，要求 C 文件文件头和所有新增文件格式符合规范。
 
 第二批证据：GCC/Clang/Sanitizer 三套检查通过，COBS 重叠与 254/255 字节长块测试通过，CRC 增量接口和失败输出测试通过，IEEE-754 特殊值测试通过，Cortex-M0+ compile-only 已通过。GitHub Actions 运行 `33955779208` 中五项任务全部成功。第二批完成，第三批为有界容器。
+
+## 6. 第三批确认设计与实现记录
+
+用户确认：以更稳健的边界检查减少调用方隐式责任；FIFO 提供批量及单字节接口，
+队列采用不要求对齐的字节复制，对象池使用指针与一字节槽状态，快照采用显式借用/归还。
+详细 API、错误优先级涉及的状态、所有权和资源上限分别见：
+
+- [byte_fifo](../components/byte_fifo.md)
+- [fixed_queue](../components/fixed_queue.md)
+- [object_pool](../components/object_pool.md)
+- [snapshot_buffer](../components/snapshot_buffer.md)
+
+### 6.1 固定契约
+
+- 四组件各有公共头、实现、独立构建目标、单元测试和组件文档，只依赖 foundation_status。
+- 首次使用前实例为 {0}；所有 API 均需有效指针和真实存储长度。
+  外部同步、存储存活、禁止复制实例仍是不可由普通 C 库自动消除的前提。
+- 初始化完整校验后提交新绑定；对象池有借出对象或快照有未结束读写借用时，重新初始化返回 BUSY。
+- 非 OK 不写普通输出或有效数据；FULL 的饱和诊断计数是显式例外。
+  FIFO/队列统计不能全部接受的写请求次数，包括 some 部分成功，不统计字节/元素数。
+- FIFO write/read 为 exact，some 部分成功返回 OK 和数量；完全无进展返回 FULL/EMPTY，
+  数量输出不变。零请求允许 NULL 并返回 OK 和零。peek/discard 不允许部分完成。
+- 队列 push/pop 复制单元素，push_some/pop_some 为完整元素的部分批量；
+  peek_at 从队头算零基逻辑索引。元素大小乘容量溢出和存储不足显式区分。
+  值复制不是深拷贝，元素中的指针不会变成库拥有的对象。
+- 对象池 alignment 显式指定，必须为非零二次幂；每槽步长满足对齐。
+  acquire 返回最低空闲槽指针与索引，release 校验当前占用槽首地址。
+  lowest_free_index == capacity 表示无空闲槽。保持无代次句柄设计，不检测地址重用后的旧指针误释放。
+- 快照 writer 和 lease 绑定原对象地址，禁止复制凭据；每槽最多一个未归还读借用。
+  更多读者采用 copy 或串行借用。读借用阻止槽复用，不阻止另一槽完成发布。
+  BUSY 在 begin 获取不到写槽时报告；publish 使用已经独占的写槽。
+- 快照 size 可为零；sequence 由库从 1 递增，UINT32_MAX 后 OVERFLOW 并保留写事务；
+  timestamp 由调用方按统一单位传入 uint32_t 单调 tick，不调用平台时钟。
+  publish/cancel/release 成功均清空对应凭据；失败保持凭据与已发布快照。
+- 所有 API 由外部串行化；快照读/写载荷可在各自借用存活期内、在 API 临界区外访问。
+  这不是无锁或 C 原子实现；P3 才提供 RTOS 适配。
+- 区间/对齐检查使用有记录的 uintptr_t 平坦地址 ABI，不做无关对象指针相减。
+  复制区间和数量输出互相重叠时拒绝；不宣称能检测悬空指针、虚报容量或任意内存破坏。
+
+### 6.2 资源与验证门槛
+
+FIFO/队列读写时间由实际字节数约束，池 acquire 最坏扫描固定槽数；
+快照 copy 按有效字节数复制，其余借用操作 O(1)。全部栈 O(1)，无堆、VLA 或动态读者列表。
+RAM 公式和资源释放责任见组件文档；ARM compile-only 不提供目标 WCET 或上板证据。
+
+本地证据（第三批当前工作树）：
+
+- GCC 13：`sh tools/check.sh host-gcc` 通过，11 项 CTest 通过。
+- Clang 21：`sh tools/check.sh host-clang` 通过，11 项 CTest 通过。
+- ASan/UBSan：`sh tools/check.sh host-sanitize` 通过，12 项 CTest（含 sanitizer probe）通过。
+- clang-format 21、Clang-Tidy 和 Cppcheck 全部通过。
+- Cortex-M0+：`cmake --preset arm-cortex-m0plus-gcc` 及对应 build 通过。
+- 测试覆盖满空、单容量、跨尾复制、反复回绕、零长度、部分操作、失败原子性、
+  输入输出重叠、池对齐/容量/重复释放、快照借用背压、复制凭据、取消和序号/统计极值。
+
+成熟度：`host-tested / hardware-unverified`，不是 `rtos-tested`。
+远端五项 CI 及最低 CMake 3.20.6 的本次结果尚未取得；提交并推送后验证，记录对应 commit/run，
+不能沿用第二批 run 作为第三批证据。第三批远端验收和 P1 最终收尾尚未完成，不自动进入 P2/P3。

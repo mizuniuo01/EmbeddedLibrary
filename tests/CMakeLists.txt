@@ -35,6 +35,13 @@ target_link_libraries(test_ieee754_byte_order PRIVATE ieee754_byte_order)
 target_include_directories(test_ieee754_byte_order PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME ieee754_byte_order.unit COMMAND test_ieee754_byte_order)
 
+foreach(component byte_fifo fixed_queue object_pool snapshot_buffer)
+    add_executable(test_${component} unit/test_${component}.c)
+    target_link_libraries(test_${component} PRIVATE ${component} embeddedlib::project_options)
+    target_include_directories(test_${component} PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+    add_test(NAME ${component}.unit COMMAND test_${component})
+endforeach()
+
 if(EMBEDDEDLIB_ENABLE_SANITIZERS)
     add_executable(embeddedlib_sanitizer_probe tooling/sanitizer_probe.c)
     target_link_libraries(embeddedlib_sanitizer_probe PRIVATE embeddedlib::project_options)

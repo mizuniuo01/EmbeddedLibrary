@@ -5,8 +5,9 @@ Driver 和具体业务无关，并优先在主机环境中验证。
 
 ## 当前状态
 
-仓库正在按 [docs/PLAN.md](docs/PLAN.md) 建设。当前正在修复和重新验证 P0 仓库治理与
-主机构建基础，尚未加入 Libraries、Services、BSP、Drivers 或 RTOS 适配实现。
+仓库正在按 [docs/PLAN.md](docs/PLAN.md) 建设。P0 已完成，P1 已包含基础契约、编码算法
+及有界容器。第三批容器已完成本地验证，等待远端 CI；Services、BSP、Drivers 和 RTOS
+适配尚未实现。组件契约见 `docs/components/`，阶段证据见 `docs/plans/P1_FOUNDATION.md`。
 
 ## 主机检查
 

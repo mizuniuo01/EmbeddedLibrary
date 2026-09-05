@@ -1,0 +1,3 @@
+add_library(snapshot_buffer STATIC src/snapshot_buffer.c)
+target_include_directories(snapshot_buffer PUBLIC include)
+target_link_libraries(snapshot_buffer PUBLIC foundation_status PRIVATE embeddedlib::project_options)
