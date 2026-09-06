@@ -20,6 +20,11 @@ target_link_libraries(test_numeric PRIVATE numeric)
 target_include_directories(test_numeric PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME numeric.unit COMMAND test_numeric)
 
+add_executable(test_pid unit/test_pid.c)
+target_link_libraries(test_pid PRIVATE pid embeddedlib::project_options)
+target_include_directories(test_pid PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME pid.unit COMMAND test_pid)
+
 add_executable(test_byte_order unit/test_byte_order.c)
 target_link_libraries(test_byte_order PRIVATE byte_order)
 target_include_directories(test_byte_order PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
