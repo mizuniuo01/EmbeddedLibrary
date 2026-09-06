@@ -19,12 +19,26 @@ int main(void)
     uint8_t crc8;
     uint16_t crc16;
     uint32_t crc32;
+    crc8_smbus_context_t crc8_split;
+    crc32_iso_hdlc_context_t crc32_split;
     TEST_ASSERT_STATUS(crc8_smbus_calculate(input, sizeof(input) - 1U, &crc8),
         FOUNDATION_STATUS_OK);
     TEST_ASSERT(crc8 == 0xF4U);
     TEST_ASSERT_STATUS(crc16_ccitt_false_calculate(input, sizeof(input) - 1U, &crc16),
         FOUNDATION_STATUS_OK);
     TEST_ASSERT(crc16 == 0x29B1U);
+    TEST_ASSERT_STATUS(crc8_smbus_init(&crc8_split), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(crc8_smbus_update(&crc8_split, input, 2U), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(crc8_smbus_update(&crc8_split, &input[2], sizeof(input) - 3U),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(crc8_smbus_finalize(&crc8_split, &crc8), FOUNDATION_STATUS_OK);
+    TEST_ASSERT(crc8 == 0xF4U);
+    TEST_ASSERT_STATUS(crc32_iso_hdlc_init(&crc32_split), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(crc32_iso_hdlc_update(&crc32_split, input, 4U), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(crc32_iso_hdlc_update(&crc32_split, &input[4], sizeof(input) - 5U),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(crc32_iso_hdlc_finalize(&crc32_split, &crc32), FOUNDATION_STATUS_OK);
+    TEST_ASSERT(crc32 == UINT32_C(0xCBF43926));
     TEST_ASSERT_STATUS(crc32_iso_hdlc_calculate(input, sizeof(input) - 1U, &crc32),
         FOUNDATION_STATUS_OK);
     TEST_ASSERT(crc32 == UINT32_C(0xCBF43926));

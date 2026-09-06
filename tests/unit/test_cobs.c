@@ -24,6 +24,13 @@ int main(void)
     uint8_t long_encoded[260];
     uint8_t long_decoded[255];
     size_t index;
+    TEST_ASSERT_STATUS(cobs_max_encoded_size(254U, &encoded_size), FOUNDATION_STATUS_OK);
+    TEST_ASSERT(encoded_size == 256U);
+    TEST_ASSERT_STATUS(cobs_encode(input, sizeof(input), encoded, 2U, &encoded_size),
+        FOUNDATION_STATUS_BUFFER_TOO_SMALL);
+    encoded_size = 77U;
+    TEST_ASSERT_STATUS(cobs_encode(input, sizeof(input), encoded, sizeof(encoded), &encoded_size),
+        FOUNDATION_STATUS_OK);
     TEST_ASSERT_STATUS(cobs_encode(input, sizeof(input), encoded, sizeof(encoded), &encoded_size),
         FOUNDATION_STATUS_OK);
     TEST_ASSERT_STATUS(cobs_decode(encoded, encoded_size, decoded, sizeof(decoded), &decoded_size),

@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：P1 第一、第二批已完成；第三批本地实现与验证完成，等待远端 CI
+> 计划状态：P1 第四批进行中；P2 等待用户开启阶段性规划
 >
 > 规范基线：架构规范 v1.3.0、代码风格规范 v1.2.0、仓库工作流规范 v1.0.0
 
@@ -63,8 +63,12 @@ Actions 运行 `33846771581` 中的 `host (gcc)`、`host (clang)`、`sanitizer` 
 
 阶段设计与批次证据见 [docs/plans/P1_FOUNDATION.md](plans/P1_FOUNDATION.md)。第一、第二批已完成，
 其远端 CI 运行 `33955779208` 的五项任务均成功。
-第三批有界容器已实现，完成本地 GCC/Clang、Sanitizer、静态分析及 ARM compile-only 验证，
-等待提交后的远端五项 CI（含 CMake 3.20.6）确认。P1 最终收尾仍须用户手动推进。
+第三批有界容器已实现，完成本地 GCC/Clang、Sanitizer、静态分析及 ARM compile-only 验证。
+提交 `ceb58a9ffee3d2fe5c4a4091fd96783f429872c3` 对应远端运行
+[`33962386609`](https://github.com/mizuniuo01/EmbeddedLibrary/actions/runs/33962386609)
+的五项任务（含 CMake 3.20.6）全部成功，P1 三批验证闭环完成。
+成熟度为 `host-tested / hardware-unverified`；外部同步、平坦地址 ABI、对象池旧指针和
+快照借用生命周期限制见阶段与组件文档。第四批契约补齐和独立接入验证尚未完成。
 
 ### P2：控制与算法库 — 未开始
 

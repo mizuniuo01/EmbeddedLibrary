@@ -82,6 +82,12 @@ cmake --preset "$preset"
 cmake --build --preset "$preset"
 ctest --preset "$preset"
 
+external_build_dir="build/$preset-external"
+cmake -S tests/external -B "$external_build_dir" -G Ninja \
+    -DEMBEDDEDLIB_SOURCE_DIR="$PWD"
+cmake --build "$external_build_dir"
+ctest --test-dir "$external_build_dir" --output-on-failure
+
 build_dir="build/$preset"
 run-clang-tidy-21 -p="$build_dir" -clang-tidy-binary clang-tidy-21 -quiet
 

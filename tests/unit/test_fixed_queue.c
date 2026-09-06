@@ -19,6 +19,8 @@ int main(void)
     uint32_t output[4] = {99U, 99U, 99U, 99U};
     size_t count = 99U;
     size_t index;
+    fixed_queue_t second_queue = {0};
+    uint8_t second_storage[4] = {0};
     TEST_ASSERT_STATUS(fixed_queue_size(&queue, &count), FOUNDATION_STATUS_NOT_INITIALIZED);
     TEST_ASSERT_STATUS(fixed_queue_init(&queue, storage, sizeof(storage), 2U, SIZE_MAX),
         FOUNDATION_STATUS_OVERFLOW);
@@ -26,6 +28,12 @@ int main(void)
         FOUNDATION_STATUS_BUFFER_TOO_SMALL);
     TEST_ASSERT_STATUS(fixed_queue_init(&queue, storage + 1U, 12U, sizeof(uint32_t), 3U),
         FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(fixed_queue_init(&second_queue, second_storage, sizeof(second_storage),
+                           sizeof(uint32_t), 1U),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(fixed_queue_push(&second_queue, &input[0]), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(fixed_queue_pop(&second_queue, output), FOUNDATION_STATUS_OK);
+    TEST_ASSERT(output[0] == 10U);
     TEST_ASSERT_STATUS(fixed_queue_peek(&queue, output), FOUNDATION_STATUS_EMPTY);
     TEST_ASSERT_STATUS(fixed_queue_push_some(&queue, NULL, 0U, &count), FOUNDATION_STATUS_OK);
     TEST_ASSERT(count == 0U);

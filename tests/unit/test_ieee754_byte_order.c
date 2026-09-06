@@ -18,6 +18,8 @@ int main(void)
     uint8_t bytes[8];
     float value;
     double double_value;
+    float ordinary = 1.25F;
+    double nan_value;
     TEST_ASSERT_STATUS(ieee754_byte_order_write_f32_be(bytes, sizeof(bytes), -0.0F),
         FOUNDATION_STATUS_OK);
     TEST_ASSERT(bytes[0] == 0x80U);
@@ -29,6 +31,16 @@ int main(void)
     TEST_ASSERT_STATUS(ieee754_byte_order_read_f64_le(bytes, sizeof(bytes), &double_value),
         FOUNDATION_STATUS_OK);
     TEST_ASSERT(isinf(double_value) != 0);
+    TEST_ASSERT_STATUS(ieee754_byte_order_write_f32_le(bytes, sizeof(bytes), ordinary),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(ieee754_byte_order_read_f32_le(bytes, sizeof(bytes), &value),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT(value == ordinary);
+    TEST_ASSERT_STATUS(ieee754_byte_order_write_f64_be(bytes, sizeof(bytes), NAN),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(ieee754_byte_order_read_f64_be(bytes, sizeof(bytes), &nan_value),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT(isnan(nan_value));
     TEST_ASSERT_STATUS(ieee754_byte_order_read_f64_le(bytes, 7U, &double_value),
         FOUNDATION_STATUS_BUFFER_TOO_SMALL);
     return 0;

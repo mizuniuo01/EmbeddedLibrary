@@ -5,6 +5,11 @@ target_link_libraries(embeddedlib_smoke PRIVATE embeddedlib::project_options)
 target_include_directories(embeddedlib_smoke PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME repository.smoke COMMAND embeddedlib_smoke)
 
+add_executable(test_foundation_status unit/test_foundation_status.c)
+target_link_libraries(test_foundation_status PRIVATE foundation_status)
+target_include_directories(test_foundation_status PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME foundation_status.unit COMMAND test_foundation_status)
+
 add_executable(test_tick32 unit/test_tick32.c)
 target_link_libraries(test_tick32 PRIVATE tick32)
 target_include_directories(test_tick32 PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")

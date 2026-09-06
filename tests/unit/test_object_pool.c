@@ -29,6 +29,16 @@ int main(void)
     void *unchanged;
     size_t index = 99U;
     size_t count;
+    object_pool_t second_pool = {0};
+    uint32_t second_storage[1] = {0};
+    uint8_t second_states[1] = {0};
+    object_pool_config_t second_config = {.storage = second_storage,
+        .storage_size = sizeof(second_storage),
+        .states = second_states,
+        .states_size = sizeof(second_states),
+        .slot_size = sizeof(uint32_t),
+        .capacity = 1U,
+        .alignment = _Alignof(uint32_t)};
     TEST_ASSERT_STATUS(object_pool_available(&pool, &index), FOUNDATION_STATUS_NOT_INITIALIZED);
     TEST_ASSERT(index == 99U);
     config.capacity = SIZE_MAX;
@@ -42,6 +52,9 @@ int main(void)
     TEST_ASSERT_STATUS(object_pool_init(&pool, &config), FOUNDATION_STATUS_INVALID_ARGUMENT);
     config.storage = storage;
     TEST_ASSERT_STATUS(object_pool_init(&pool, &config), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(object_pool_init(&second_pool, &second_config), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(object_pool_acquire(&second_pool, &unchanged, &index), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(object_pool_release(&second_pool, unchanged), FOUNDATION_STATUS_OK);
     TEST_ASSERT(storage[0] == 1U && states[0] == 0U);
     TEST_ASSERT_STATUS(object_pool_acquire(&pool, &first, &index), FOUNDATION_STATUS_OK);
     TEST_ASSERT(index == 0U && first == &storage[0]);

@@ -19,10 +19,14 @@ int main(void)
     uint8_t output[4] = {99U, 99U, 99U, 99U};
     size_t count = 99U;
     size_t index;
+    byte_fifo_t second_fifo = {0};
+    uint8_t second_storage[2] = {0};
     TEST_ASSERT_STATUS(byte_fifo_size(&fifo, &count), FOUNDATION_STATUS_NOT_INITIALIZED);
     TEST_ASSERT(count == 99U);
     TEST_ASSERT_STATUS(byte_fifo_init(&fifo, storage, 0U), FOUNDATION_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT_STATUS(byte_fifo_init(&fifo, storage, sizeof(storage)), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(byte_fifo_init(&second_fifo, second_storage, sizeof(second_storage)),
+        FOUNDATION_STATUS_OK);
     TEST_ASSERT_STATUS(byte_fifo_capacity(&fifo, &count), FOUNDATION_STATUS_OK);
     TEST_ASSERT(count == 3U);
     TEST_ASSERT_STATUS(byte_fifo_peek(&fifo, NULL, 0U), FOUNDATION_STATUS_OK);
@@ -32,12 +36,19 @@ int main(void)
     count = 99U;
     TEST_ASSERT_STATUS(byte_fifo_read_some(&fifo, output, 1U, &count), FOUNDATION_STATUS_EMPTY);
     TEST_ASSERT(count == 99U && output[0] == 99U);
+    TEST_ASSERT_STATUS(byte_fifo_push(&second_fifo, 88U), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(byte_fifo_push(&fifo, 77U), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(byte_fifo_pop(&second_fifo, output), FOUNDATION_STATUS_OK);
+    TEST_ASSERT(output[0] == 88U);
+    TEST_ASSERT_STATUS(byte_fifo_pop(&fifo, output), FOUNDATION_STATUS_OK);
+    TEST_ASSERT(output[0] == 77U);
     TEST_ASSERT_STATUS(byte_fifo_write(&fifo, data, 4U), FOUNDATION_STATUS_FULL);
     TEST_ASSERT_STATUS(byte_fifo_size(&fifo, &count), FOUNDATION_STATUS_OK);
     TEST_ASSERT(count == 0U);
     TEST_ASSERT_STATUS(byte_fifo_write_some(&fifo, data, 4U, &count), FOUNDATION_STATUS_OK);
     TEST_ASSERT(count == 3U);
     TEST_ASSERT_STATUS(byte_fifo_init(&fifo, NULL, 3U), FOUNDATION_STATUS_INVALID_ARGUMENT);
+    output[0] = 99U;
     TEST_ASSERT_STATUS(byte_fifo_read(&fifo, output, 4U), FOUNDATION_STATUS_EMPTY);
     TEST_ASSERT(output[0] == 99U);
     TEST_ASSERT_STATUS(byte_fifo_write(&fifo, storage, 1U), FOUNDATION_STATUS_INVALID_ARGUMENT);

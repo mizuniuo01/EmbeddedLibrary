@@ -24,11 +24,18 @@ int main(void)
     uint8_t second[3] = {0};
     uint8_t output[3] = {99U, 99U, 99U};
     uint32_t value = 99U;
+    snapshot_buffer_t second_buffer = {0};
+    uint8_t second_first[1] = {0};
+    uint8_t second_second[1] = {0};
     TEST_ASSERT_STATUS(snapshot_buffer_sequence(&buffer, &value),
         FOUNDATION_STATUS_NOT_INITIALIZED);
     TEST_ASSERT_STATUS(snapshot_buffer_init(&buffer, first, first, 3U),
         FOUNDATION_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT_STATUS(snapshot_buffer_init(&buffer, first, second, 3U), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(snapshot_buffer_init(&second_buffer, second_first, second_second, 1U),
+        FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(snapshot_buffer_begin(&second_buffer, &writer), FOUNDATION_STATUS_OK);
+    TEST_ASSERT_STATUS(snapshot_buffer_cancel(&second_buffer, &writer), FOUNDATION_STATUS_OK);
     TEST_ASSERT_STATUS(snapshot_buffer_acquire(&buffer, &old), FOUNDATION_STATUS_EMPTY);
     TEST_ASSERT_STATUS(snapshot_buffer_begin(&buffer, &writer), FOUNDATION_STATUS_OK);
     writer.data[0] = 42U;
