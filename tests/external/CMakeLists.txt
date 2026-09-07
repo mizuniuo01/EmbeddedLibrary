@@ -15,9 +15,12 @@ add_subdirectory("${EMBEDDEDLIB_SOURCE_DIR}/libraries/moving_average" moving_ave
 add_subdirectory("${EMBEDDEDLIB_SOURCE_DIR}/libraries/hysteresis" hysteresis)
 add_subdirectory("${EMBEDDEDLIB_SOURCE_DIR}/libraries/deadband" deadband)
 add_subdirectory("${EMBEDDEDLIB_SOURCE_DIR}/libraries/rate_limiter" rate_limiter)
+add_subdirectory("${EMBEDDEDLIB_SOURCE_DIR}/libraries/pid" pid)
+add_subdirectory("${EMBEDDEDLIB_SOURCE_DIR}/libraries/cascaded_pid" cascaded_pid)
 add_executable(external_byte_fifo_smoke main.c)
 target_link_libraries(external_byte_fifo_smoke PRIVATE byte_fifo first_order_filter moving_average
     hysteresis deadband rate_limiter)
+target_link_libraries(external_byte_fifo_smoke PRIVATE cascaded_pid)
 target_compile_features(external_byte_fifo_smoke PRIVATE c_std_11)
 enable_testing()
 add_test(NAME external.byte_fifo COMMAND external_byte_fifo_smoke)

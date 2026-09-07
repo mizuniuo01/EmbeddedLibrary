@@ -1,6 +1,6 @@
 # P2 控制与算法库阶段设计
 
-状态：进行中（第一批 PID 完成；第二批五个独立组件本地验证完成，等待远端 CI）
+状态：进行中（第三批串级 PID 本地验证完成，等待远端 CI）
 
 ## 批次
 
@@ -25,4 +25,12 @@
 
 第二批当前证据：五个独立组件均具备公共头文件、实现、独立 CMake 目标、单元测试和组件文档。
 GCC 18 项 CTest、Clang 18 项 CTest、Sanitizer 19 项 CTest（含 sanitizer probe）、外部接入测试、
-Clang-Tidy、Cppcheck 和 ARM Cortex-M0+ compile-only 均已在本地通过。第二批远端 CI 尚未验证。
+Clang-Tidy、Cppcheck 和 ARM Cortex-M0+ compile-only 均已在本地通过。第二批提交
+`968b0588aeebd10e5f9a968ba9b3f10827e0dbe9` 对应运行 `34087853238` 的五项远端任务全部成功。
+
+第三批采用固定两级串级 PID、两个 `pid_f32_t` 指针、组合器级间限幅、PID 受控快照/恢复和事务式回滚。
+组合器输入为外环目标、外环测量、内环测量和显式 dt；保存最近一次成功的中间目标与最终输出。
+
+第三批当前证据：新增 `cascaded_pid` 独立 Library、PID snapshot/restore API、19 项 GCC/Clang
+仓库测试、20 项 Sanitizer 测试、外部 CMake 接入、Clang-Tidy、Cppcheck 和 ARM compile-only
+均已在本地通过。第三批远端 CI 尚未验证。

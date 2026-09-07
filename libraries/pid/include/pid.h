@@ -41,10 +41,22 @@ typedef struct {
     bool initialized;
 } pid_f32_t;
 
+/* 受控事务快照；只能通过 snapshot/restore API 使用。 */
+typedef struct {
+    pid_f32_config_t config;
+    float integral;
+    float previous_measurement;
+    float previous_error;
+    float output;
+    bool initialized;
+} pid_f32_snapshot_t;
+
 /* 生命周期和计算接口。 */
 foundation_status_t pid_f32_init(pid_f32_t *pid, const pid_f32_config_t *config);
 foundation_status_t pid_f32_reset(pid_f32_t *pid, float measurement, float error);
 foundation_status_t pid_f32_calculate(pid_f32_t *pid, float setpoint, float measurement, float dt,
     float *output);
+foundation_status_t pid_f32_snapshot(const pid_f32_t *pid, pid_f32_snapshot_t *snapshot);
+foundation_status_t pid_f32_restore(pid_f32_t *pid, const pid_f32_snapshot_t *snapshot);
 
 #endif /* PID_H */

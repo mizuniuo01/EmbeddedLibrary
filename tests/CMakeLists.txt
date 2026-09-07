@@ -52,6 +52,11 @@ target_link_libraries(test_ieee754_byte_order PRIVATE ieee754_byte_order)
 target_include_directories(test_ieee754_byte_order PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME ieee754_byte_order.unit COMMAND test_ieee754_byte_order)
 
+add_executable(test_cascaded_pid unit/test_cascaded_pid.c)
+target_link_libraries(test_cascaded_pid PRIVATE cascaded_pid embeddedlib::project_options)
+target_include_directories(test_cascaded_pid PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME cascaded_pid.unit COMMAND test_cascaded_pid)
+
 foreach(component byte_fifo fixed_queue object_pool snapshot_buffer)
     add_executable(test_${component} unit/test_${component}.c)
     target_link_libraries(test_${component} PRIVATE ${component} embeddedlib::project_options)

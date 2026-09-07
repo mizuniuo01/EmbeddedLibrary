@@ -184,3 +184,77 @@ foundation_status_t pid_f32_calculate(pid_f32_t *pid, float setpoint, float meas
     *output = limited_output;
     return FOUNDATION_STATUS_OK;
 }
+
+/**
+ * @brief 保存已初始化 PID 的受控事务快照。
+ * @param pid PID 实例。
+ * @param snapshot 成功时接收快照，失败时保持不变。
+ * @retval FOUNDATION_STATUS_OK 快照成功。
+ * @retval FOUNDATION_STATUS_INVALID_ARGUMENT 参数为空。
+ * @retval FOUNDATION_STATUS_INVALID_STATE 实例状态无效。
+ * @retval FOUNDATION_STATUS_NOT_INITIALIZED 实例尚未初始化。
+ */
+foundation_status_t pid_f32_snapshot(const pid_f32_t *pid, pid_f32_snapshot_t *snapshot)
+{
+    foundation_status_t status = check_pid(pid);
+
+    if (status != FOUNDATION_STATUS_OK) {
+        return status;
+    }
+    if (snapshot == NULL) {
+        return FOUNDATION_STATUS_INVALID_ARGUMENT;
+    }
+    *snapshot = (pid_f32_snapshot_t){
+        .config = pid->config,
+        .integral = pid->integral,
+        .previous_measurement = pid->previous_measurement,
+        .previous_error = pid->previous_error,
+        .output = pid->output,
+        .initialized = pid->initialized,
+    };
+    return FOUNDATION_STATUS_OK;
+}
+
+/**
+ * @brief 恢复受控 PID 事务快照。
+ * @param pid PID 实例。
+ * @param snapshot 已由 snapshot API 生成的快照。
+ * @retval FOUNDATION_STATUS_OK 恢复成功。
+ * @retval FOUNDATION_STATUS_INVALID_ARGUMENT 参数为空。
+ * @retval FOUNDATION_STATUS_INVALID_DATA 快照包含非法配置或数值。
+ * @retval FOUNDATION_STATUS_INVALID_STATE 当前 PID 状态或快照标志无效。
+ */
+foundation_status_t pid_f32_restore(pid_f32_t *pid, const pid_f32_snapshot_t *snapshot)
+{
+    foundation_status_t status;
+
+    if ((pid == NULL) || (snapshot == NULL)) {
+        return FOUNDATION_STATUS_INVALID_ARGUMENT;
+    }
+    if (!snapshot->initialized) {
+        return FOUNDATION_STATUS_INVALID_STATE;
+    }
+    status = validate_config(&snapshot->config);
+    if (status != FOUNDATION_STATUS_OK) {
+        return status;
+    }
+    if (!finite_value(snapshot->integral) || !finite_value(snapshot->previous_measurement) ||
+        !finite_value(snapshot->previous_error) || !finite_value(snapshot->output)) {
+        return FOUNDATION_STATUS_INVALID_DATA;
+    }
+    if (pid->initialized) {
+        status = check_pid(pid);
+        if (status != FOUNDATION_STATUS_OK) {
+            return status;
+        }
+    }
+    *pid = (pid_f32_t){
+        .config = snapshot->config,
+        .integral = snapshot->integral,
+        .previous_measurement = snapshot->previous_measurement,
+        .previous_error = snapshot->previous_error,
+        .output = snapshot->output,
+        .initialized = true,
+    };
+    return FOUNDATION_STATUS_OK;
+}
