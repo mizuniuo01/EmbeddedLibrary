@@ -1,11 +1,11 @@
 # P2 控制与算法库阶段设计
 
-状态：进行中（第一批 PID 实现中）
+状态：进行中（第一批 PID 完成；第二批五个独立组件本地验证完成，等待远端 CI）
 
 ## 批次
 
 1. PID：当前实现 f32，显式 dt、双导数模式、条件积分/回算抗饱和、显式 reset。
-2. 滤波与非线性：一阶滤波、固定窗口滑动平均、迟滞、死区、速率限制。
+2. 滤波与非线性：五个独立 Libraries，分别实现一阶滤波、固定窗口滑动平均、迟滞、死区、速率限制。
 3. 组合控制器：只组合已存在的控制器实例，不复制算法逻辑。
 
 定点算法暂不纳入 P2；后续另行设计。所有批次均不包含 RTOS、调度、BSP、Driver、执行器输出或产品语义。
@@ -22,3 +22,7 @@
 
 主机 GCC/Clang/Sanitizer、ARM compile-only、clang-format、Clang-Tidy、Cppcheck 和外部接入测试均通过；
 测试覆盖正常、饱和、reset、异常输入、失败原子性及多实例隔离后，才完成第一批。
+
+第二批当前证据：五个独立组件均具备公共头文件、实现、独立 CMake 目标、单元测试和组件文档。
+GCC 18 项 CTest、Clang 18 项 CTest、Sanitizer 19 项 CTest（含 sanitizer probe）、外部接入测试、
+Clang-Tidy、Cppcheck 和 ARM Cortex-M0+ compile-only 均已在本地通过。第二批远端 CI 尚未验证。

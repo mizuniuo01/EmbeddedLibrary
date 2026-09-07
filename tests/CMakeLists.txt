@@ -25,6 +25,13 @@ target_link_libraries(test_pid PRIVATE pid embeddedlib::project_options)
 target_include_directories(test_pid PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME pid.unit COMMAND test_pid)
 
+foreach(component first_order_filter moving_average hysteresis deadband rate_limiter)
+    add_executable(test_${component} unit/test_${component}.c)
+    target_link_libraries(test_${component} PRIVATE ${component} embeddedlib::project_options)
+    target_include_directories(test_${component} PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+    add_test(NAME ${component}.unit COMMAND test_${component})
+endforeach()
+
 add_executable(test_byte_order unit/test_byte_order.c)
 target_link_libraries(test_byte_order PRIVATE byte_order)
 target_include_directories(test_byte_order PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
