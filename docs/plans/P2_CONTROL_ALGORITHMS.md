@@ -1,6 +1,6 @@
 # P2 控制与算法库阶段设计
 
-状态：进行中（第三批串级 PID 本地验证完成，等待远端 CI）
+状态：已完成（三批实现、本地验证和远端 CI 均已闭环）
 
 ## 批次
 
@@ -33,4 +33,14 @@ Clang-Tidy、Cppcheck 和 ARM Cortex-M0+ compile-only 均已在本地通过。�
 
 第三批当前证据：新增 `cascaded_pid` 独立 Library、PID snapshot/restore API、19 项 GCC/Clang
 仓库测试、20 项 Sanitizer 测试、外部 CMake 接入、Clang-Tidy、Cppcheck 和 ARM compile-only
-均已在本地通过。第三批远端 CI 尚未验证。
+均已在本地通过。提交 `3b9efb6e6714690712ed6f77b64ec8b28ef10d2a` 对应运行
+[`34128638025`](https://github.com/mizuniuo01/EmbeddedLibrary/actions/runs/34128638025) 的五项远端任务全部成功。
+
+## P2 收尾
+
+P2 三批均已完成公共 API、独立构建目标、组件说明、主机单元测试、外部接入验证和 ARM compile-only。
+PID snapshot/restore 只作为组合器事务回滚的受控接口；串级控制器固定为两级，组合器不包含产品领域语义。
+本阶段不提供定点算法、RTOS 调度、目标硬件验证、目标 WCET 或执行器输出，成熟度为
+`host-tested / hardware-unverified`。
+
+下一阶段为 P3 并发端口与 FreeRTOS 适配，仍需用户手动开启阶段性 Plan；P3 不在本次收尾中自动实现。
