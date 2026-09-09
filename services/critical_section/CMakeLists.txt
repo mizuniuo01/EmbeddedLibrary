@@ -1,0 +1,3 @@
+add_library(critical_section STATIC src/critical_section.c)
+target_include_directories(critical_section PUBLIC include)
+target_link_libraries(critical_section PUBLIC foundation_status PRIVATE embeddedlib::project_options)

@@ -15,6 +15,22 @@ target_link_libraries(test_tick32 PRIVATE tick32)
 target_include_directories(test_tick32 PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME tick32.unit COMMAND test_tick32)
 
+add_executable(test_time_port unit/test_time_port.c support/time_port_fake.c)
+target_link_libraries(test_time_port PRIVATE time_port embeddedlib::project_options)
+target_include_directories(test_time_port PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME time_port.unit COMMAND test_time_port)
+
+add_executable(test_critical_section unit/test_critical_section.c)
+target_link_libraries(test_critical_section PRIVATE critical_section embeddedlib::project_options)
+target_include_directories(test_critical_section PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME critical_section.unit COMMAND test_critical_section)
+
+add_executable(test_concurrency_ports unit/test_concurrency_ports.c)
+target_link_libraries(test_concurrency_ports PRIVATE queue_port event_group count_notification
+    embeddedlib::project_options)
+target_include_directories(test_concurrency_ports PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME concurrency_ports.unit COMMAND test_concurrency_ports)
+
 add_executable(test_numeric unit/test_numeric.c)
 target_link_libraries(test_numeric PRIVATE numeric)
 target_include_directories(test_numeric PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")

@@ -82,9 +82,9 @@ P2 三批均支持多实例、静态分配和主机测试，不包含航向、�
 的 `host (gcc)`、`host (clang)`、`sanitizer`、`cmake-minimum` 和 `arm-cortex-m0plus` 五项任务全部成功。
 成熟度为 `host-tested / hardware-unverified`。定点算法、RTOS 调度、目标硬件行为和 WCET 不在 P2 验证范围内。
 
-### P3：并发端口与 FreeRTOS 适配 — 未开始
+### P3：并发端口与 FreeRTOS 适配 — 进行中
 
-定义时间、事件、队列、锁、临界区和任务通知端口，区分普通上下文与 ISR-safe 操作，提供裸机/主机替身和 FreeRTOS 适配器。FreeRTOS 具体版本由首个新项目确定后锁定，适配器记录最低支持版本、当前验证版本和配置要求。未经用户开启 P3，不实现适配器代码。
+阶段设计见 [docs/plans/P3_CONCURRENCY_PORTS.md](plans/P3_CONCURRENCY_PORTS.md)。第一批已完成时间端口、临界区端口、稳定状态码扩展和确定性 fake；第二批已完成队列、事件位组和计数通知，GCC、Clang、Sanitizer、静态检查、外部构建和 ARM compile-only 均通过。第三批互斥/POSIX 并发验证尚未开始。FreeRTOS 具体版本由首个新项目确定后锁定，适配器记录最低支持版本、当前验证版本和配置要求。
 
 ### P4：运行时 Services — 未开始
 

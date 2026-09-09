@@ -1,0 +1,3 @@
+add_library(count_notification STATIC src/count_notification.c)
+target_include_directories(count_notification PUBLIC include)
+target_link_libraries(count_notification PUBLIC critical_section foundation_status PRIVATE embeddedlib::project_options)

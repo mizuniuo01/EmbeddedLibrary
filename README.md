@@ -5,9 +5,9 @@ Driver 和具体业务无关，并优先在主机环境中验证。
 
 ## 当前状态
 
-仓库正在按 [docs/PLAN.md](docs/PLAN.md) 建设。P0、P1、P2 已完成，包含基础契约、编码算法、
-有界容器、PID、滤波/限制器和事务式串级 PID，相关本地及远端 CI 验证已闭环；P3 等待阶段性规划。Services、BSP、Drivers 和 RTOS
-适配尚未实现。组件契约见 `docs/components/`，阶段证据见 `docs/plans/P1_FOUNDATION.md`。
+仓库正在按 [docs/PLAN.md](docs/PLAN.md) 建设。P0、P1、P2 已完成，P3 第一批已完成，包含基础契约、编码算法、
+有界容器、PID、滤波/限制器、事务式串级 PID、时间端口和临界区端口；P3 第二、三批以及 FreeRTOS
+适配尚未实现。组件契约见 `docs/components/`，阶段证据见 `docs/plans/`。
 
 ## 主机检查
 

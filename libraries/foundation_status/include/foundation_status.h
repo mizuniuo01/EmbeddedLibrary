@@ -20,6 +20,8 @@ typedef enum {
     FOUNDATION_STATUS_NOT_FOUND = 14,       /* 请求的对象或记录不存在。 */
     FOUNDATION_STATUS_CANCELLED = 15,       /* 操作已被明确取消。 */
     FOUNDATION_STATUS_INTERNAL_ERROR = 16,  /* 组件内部不变量被破坏。 */
+    FOUNDATION_STATUS_INVALID_CONTEXT = 17, /* 当前执行上下文不允许该操作。 */
+    FOUNDATION_STATUS_UNSUPPORTED = 18,     /* 当前适配器不提供该能力。 */
 } foundation_status_t;
 
 #endif /* FOUNDATION_STATUS_H */

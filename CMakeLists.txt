@@ -45,6 +45,7 @@ endif()
 add_library(embeddedlib::project_options ALIAS embeddedlib_project_options)
 
 add_subdirectory(libraries)
+add_subdirectory(services)
 
 if(BUILD_TESTING)
     add_subdirectory(tests)
