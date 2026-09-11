@@ -13,7 +13,7 @@ typedef enum {
 typedef struct {
     uint32_t bits;
     const critical_section_port_t *critical;
-    const event_group_wait_strategy_t *wait;
+    const waiter_port_t *wait_port;
     event_group_state_t state;
 } event_group_impl_t;
 _Static_assert(sizeof(event_group_impl_t) <= EVENT_GROUP_STORAGE_SIZE,
@@ -68,7 +68,7 @@ static foundation_status_t mutate(event_group_t *group, uint32_t mask, bool set,
     if (isr)
         *yield = false;
     (void)critical_section_exit(state->critical, token);
-    (void)state->wait->signal(state->wait->context);
+    (void)state->wait_port->signal_all(state->wait_port->context);
     return FOUNDATION_STATUS_OK;
 }
 /**
@@ -80,19 +80,19 @@ static foundation_status_t mutate(event_group_t *group, uint32_t mask, bool set,
  * @retval FOUNDATION_STATUS_INVALID_ARGUMENT 参数非法。
  */
 foundation_status_t event_group_init(event_group_t *group, const critical_section_port_t *critical,
-    const event_group_wait_strategy_t *wait)
+    const waiter_port_t *wait_port)
 {
     event_group_impl_t *state;
     if ((group == NULL) || (critical == NULL) || (critical->enter == NULL) ||
-        (critical->exit == NULL) || (wait == NULL) || (wait->wait == NULL) ||
-        (wait->signal == NULL) || (wait->cancel == NULL))
+        (critical->exit == NULL) || (wait_port == NULL) || (wait_port->wait == NULL) ||
+        (wait_port->signal_all == NULL) || (wait_port->cancel_all == NULL))
         return FOUNDATION_STATUS_INVALID_ARGUMENT;
     state = impl(group);
     if ((state->state == EVENT_GROUP_READY) || (state->state == EVENT_GROUP_STOPPED))
         return FOUNDATION_STATUS_BUSY;
     state->bits = 0U;
     state->critical = critical;
-    state->wait = wait;
+    state->wait_port = wait_port;
     state->state = EVENT_GROUP_READY;
     return FOUNDATION_STATUS_OK;
 }
@@ -132,7 +132,7 @@ foundation_status_t event_group_stop(event_group_t *group)
         return FOUNDATION_STATUS_INVALID_STATE;
     s->bits = 0U;
     s->state = EVENT_GROUP_STOPPED;
-    (void)s->wait->cancel(s->wait->context);
+    (void)s->wait_port->cancel_all(s->wait_port->context);
     return FOUNDATION_STATUS_OK;
 }
 /**
@@ -225,65 +225,79 @@ foundation_status_t event_group_clear_isr(event_group_t *g, uint32_t m, bool *y)
  * @param matched 实际满足位输出地址。
  * @retval FOUNDATION_STATUS_OK 条件满足。
  */
-static foundation_status_t wait_bits(event_group_t *group, uint32_t mask, bool all, bool clear,
-    uint32_t deadline, uint32_t *matched)
+static foundation_status_t wait_bits(event_group_t *group, waiter_t *waiter, uint32_t mask,
+    bool all, bool clear, uint32_t deadline, uint32_t *matched)
 {
     event_group_impl_t *s;
     critical_section_token_t token;
     foundation_status_t w;
     foundation_status_t status;
-    if ((group == NULL) || (mask == 0U) || (matched == NULL))
+    if ((group == NULL) || (waiter == NULL) || (mask == 0U) || (matched == NULL))
         return FOUNDATION_STATUS_INVALID_ARGUMENT;
     s = impl(group);
-    if (s->state != EVENT_GROUP_READY)
+    status = waiter_begin(waiter, group);
+    if (status != FOUNDATION_STATUS_OK) {
+        return status;
+    }
+    if (s->state != EVENT_GROUP_READY) {
+        (void)waiter_complete(waiter, FOUNDATION_STATUS_INVALID_STATE);
         return FOUNDATION_STATUS_INVALID_STATE;
+    }
     for (;;) {
+        uint32_t bits;
         if (s->state == EVENT_GROUP_STOPPED) {
+            (void)waiter_complete(waiter, FOUNDATION_STATUS_CANCELLED);
             return FOUNDATION_STATUS_CANCELLED;
         }
-        uint32_t bits;
         status = critical_section_enter(s->critical, &token);
-        if (status != FOUNDATION_STATUS_OK)
+        if (status != FOUNDATION_STATUS_OK) {
+            (void)waiter_complete(waiter, status);
             return status;
+        }
         bits = cimpl(group)->bits;
         if ((all && ((bits & mask) == mask)) || (!all && ((bits & mask) != 0U))) {
             *matched = bits & mask;
             if (clear)
                 s->bits &= ~mask;
             (void)critical_section_exit(s->critical, token);
+            (void)waiter_complete(waiter, FOUNDATION_STATUS_OK);
             return FOUNDATION_STATUS_OK;
         }
         (void)critical_section_exit(s->critical, token);
-        w = s->wait->wait(s->wait->context, deadline);
-        if (w != FOUNDATION_STATUS_OK)
+        w = s->wait_port->wait(s->wait_port->context, waiter, deadline);
+        if (w != FOUNDATION_STATUS_OK) {
+            (void)waiter_complete(waiter, w);
             return w;
+        }
     }
 }
 /**
  * @brief 等待任意目标事件位。
  * @param g 事件组对象。
+ * @param waiter 等待者对象。
  * @param m 目标掩码。
  * @param c 成功后是否清除。
  * @param d 绝对 deadline。
  * @param r 满足位输出地址。
  * @retval FOUNDATION_STATUS_OK 条件满足。
  */
-foundation_status_t event_group_wait_any(event_group_t *g, uint32_t m, bool c, uint32_t d,
-    uint32_t *r)
+foundation_status_t event_group_wait_any(event_group_t *g, waiter_t *waiter, uint32_t m, bool c,
+    uint32_t d, uint32_t *r)
 {
-    return wait_bits(g, m, false, c, d, r);
+    return wait_bits(g, waiter, m, false, c, d, r);
 }
 /**
  * @brief 等待全部目标事件位。
  * @param g 事件组对象。
+ * @param waiter 等待者对象。
  * @param m 目标掩码。
  * @param c 成功后是否清除。
  * @param d 绝对 deadline。
  * @param r 满足位输出地址。
  * @retval FOUNDATION_STATUS_OK 条件满足。
  */
-foundation_status_t event_group_wait_all(event_group_t *g, uint32_t m, bool c, uint32_t d,
-    uint32_t *r)
+foundation_status_t event_group_wait_all(event_group_t *g, waiter_t *waiter, uint32_t m, bool c,
+    uint32_t d, uint32_t *r)
 {
-    return wait_bits(g, m, true, c, d, r);
+    return wait_bits(g, waiter, m, true, c, d, r);
 }

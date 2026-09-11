@@ -21,7 +21,7 @@ typedef struct {
     size_t head;
     size_t size;
     const critical_section_port_t *critical;
-    const queue_port_wait_strategy_t *wait_strategy;
+    const waiter_port_t *wait_port;
     queue_port_state_t state;
 } queue_port_impl_t;
 
@@ -42,6 +42,7 @@ static queue_port_impl_t *queue_impl(queue_port_t *queue)
 /**
  * @brief 获取队列私有实现的只读视图。
  * @param queue 队列对象。
+ * @param waiter 等待者对象。
  * @return 队列私有实现只读地址。
  */
 static const queue_port_impl_t *queue_const_impl(const queue_port_t *queue)
@@ -56,8 +57,8 @@ static const queue_port_impl_t *queue_const_impl(const queue_port_t *queue)
  */
 static void queue_signal(const queue_port_impl_t *impl)
 {
-    if (impl->wait_strategy->signal != NULL) {
-        (void)impl->wait_strategy->signal(impl->wait_strategy->context);
+    if (impl->wait_port->signal_one != NULL) {
+        (void)impl->wait_port->signal_one(impl->wait_port->context);
     }
 }
 
@@ -225,7 +226,7 @@ static foundation_status_t queue_try_pop_internal(queue_port_t *queue, void *dat
  * @param element_size 单个元素字节数。
  * @param capacity 元素容量。
  * @param critical 临界区端口。
- * @param wait_strategy 等待策略端口。
+ * @param wait_port 统一等待端口。
  * @retval FOUNDATION_STATUS_OK 初始化成功。
  * @retval FOUNDATION_STATUS_INVALID_ARGUMENT 参数非法。
  * @retval FOUNDATION_STATUS_OVERFLOW 容量乘法溢出。
@@ -235,13 +236,13 @@ static foundation_status_t queue_try_pop_internal(queue_port_t *queue, void *dat
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 foundation_status_t queue_port_init(queue_port_t *queue, void *storage, size_t storage_size,
     size_t element_size, size_t capacity, const critical_section_port_t *critical,
-    const queue_port_wait_strategy_t *wait_strategy)
+    const waiter_port_t *wait_port)
 {
     queue_port_impl_t *impl;
     size_t required;
     if ((queue == NULL) || (storage == NULL) || (critical == NULL) || (critical->enter == NULL) ||
-        (critical->exit == NULL) || (wait_strategy == NULL) || (wait_strategy->wait == NULL) ||
-        (wait_strategy->signal == NULL) || (wait_strategy->cancel == NULL) ||
+        (critical->exit == NULL) || (wait_port == NULL) || (wait_port->wait == NULL) ||
+        (wait_port->signal_one == NULL) || (wait_port->cancel_all == NULL) ||
         (element_size == 0U) || (capacity == 0U)) {
         return FOUNDATION_STATUS_INVALID_ARGUMENT;
     }
@@ -262,7 +263,7 @@ foundation_status_t queue_port_init(queue_port_t *queue, void *storage, size_t s
     impl->head = 0U;
     impl->size = 0U;
     impl->critical = critical;
-    impl->wait_strategy = wait_strategy;
+    impl->wait_port = wait_port;
     impl->state = QUEUE_PORT_STATE_READY;
     return FOUNDATION_STATUS_OK;
 }
@@ -310,7 +311,7 @@ foundation_status_t queue_port_stop(queue_port_t *queue)
     impl->state = QUEUE_PORT_STATE_STOPPED;
     impl->head = 0U;
     impl->size = 0U;
-    (void)impl->wait_strategy->cancel(impl->wait_strategy->context);
+    (void)impl->wait_port->cancel_all(impl->wait_port->context);
     return FOUNDATION_STATUS_OK;
 }
 
@@ -376,27 +377,37 @@ foundation_status_t queue_port_try_push(queue_port_t *queue, const void *data)
 /**
  * @brief 在有限 deadline 前等待并复制一个元素入队。
  * @param queue 队列对象。
+ * @param waiter 等待者对象。
  * @param data 待复制元素地址。
  * @param deadline 绝对 deadline。
  * @retval FOUNDATION_STATUS_OK 入队成功。
  * @retval FOUNDATION_STATUS_TIMEOUT 等待超时。
  * @retval FOUNDATION_STATUS_CANCELLED 等待被停止取消。
  */
-foundation_status_t queue_port_push_until(queue_port_t *queue, const void *data, uint32_t deadline)
+foundation_status_t queue_port_push_until(queue_port_t *queue, waiter_t *waiter, const void *data,
+    uint32_t deadline)
 {
     foundation_status_t status;
+    if (waiter == NULL)
+        return FOUNDATION_STATUS_INVALID_ARGUMENT;
+    status = waiter_begin(waiter, queue);
+    if (status != FOUNDATION_STATUS_OK)
+        return status;
     do {
         status = queue_port_try_push(queue, data);
         if ((status == FOUNDATION_STATUS_INVALID_STATE) &&
             (queue_impl(queue)->state == QUEUE_PORT_STATE_STOPPED)) {
+            (void)waiter_complete(waiter, FOUNDATION_STATUS_CANCELLED);
             return FOUNDATION_STATUS_CANCELLED;
         }
         if (status != FOUNDATION_STATUS_FULL) {
+            (void)waiter_complete(waiter, status);
             return status;
         }
-        status = queue_impl(queue)->wait_strategy->wait(queue_impl(queue)->wait_strategy->context,
+        status = queue_impl(queue)->wait_port->wait(queue_impl(queue)->wait_port->context, waiter,
             deadline);
     } while (status == FOUNDATION_STATUS_OK);
+    (void)waiter_complete(waiter, status);
     return status;
 }
 
@@ -428,27 +439,37 @@ foundation_status_t queue_port_try_pop(queue_port_t *queue, void *data)
 /**
  * @brief 在有限 deadline 前等待并复制一个元素出队。
  * @param queue 队列对象。
+ * @param waiter 等待者对象。
  * @param data 元素输出地址。
  * @param deadline 绝对 deadline。
  * @retval FOUNDATION_STATUS_OK 出队成功。
  * @retval FOUNDATION_STATUS_TIMEOUT 等待超时。
  * @retval FOUNDATION_STATUS_CANCELLED 等待被停止取消。
  */
-foundation_status_t queue_port_pop_until(queue_port_t *queue, void *data, uint32_t deadline)
+foundation_status_t queue_port_pop_until(queue_port_t *queue, waiter_t *waiter, void *data,
+    uint32_t deadline)
 {
     foundation_status_t status;
+    if (waiter == NULL)
+        return FOUNDATION_STATUS_INVALID_ARGUMENT;
+    status = waiter_begin(waiter, queue);
+    if (status != FOUNDATION_STATUS_OK)
+        return status;
     do {
         status = queue_port_try_pop(queue, data);
         if ((status == FOUNDATION_STATUS_INVALID_STATE) &&
             (queue_impl(queue)->state == QUEUE_PORT_STATE_STOPPED)) {
+            (void)waiter_complete(waiter, FOUNDATION_STATUS_CANCELLED);
             return FOUNDATION_STATUS_CANCELLED;
         }
         if (status != FOUNDATION_STATUS_EMPTY) {
+            (void)waiter_complete(waiter, status);
             return status;
         }
-        status = queue_impl(queue)->wait_strategy->wait(queue_impl(queue)->wait_strategy->context,
+        status = queue_impl(queue)->wait_port->wait(queue_impl(queue)->wait_port->context, waiter,
             deadline);
     } while (status == FOUNDATION_STATUS_OK);
+    (void)waiter_complete(waiter, status);
     return status;
 }
 

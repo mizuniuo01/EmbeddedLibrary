@@ -9,6 +9,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(EMBEDDEDLIB_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+option(EMBEDDEDLIB_ENABLE_TSAN "Enable ThreadSanitizer" OFF)
 
 add_library(embeddedlib_project_options INTERFACE)
 target_compile_features(embeddedlib_project_options INTERFACE c_std_11)
@@ -40,6 +41,14 @@ if(EMBEDDEDLIB_ENABLE_SANITIZERS)
     target_link_options(embeddedlib_project_options INTERFACE
         -fsanitize=address,undefined
     )
+endif()
+
+if(EMBEDDEDLIB_ENABLE_TSAN)
+    if(NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        message(FATAL_ERROR "EMBEDDEDLIB_ENABLE_TSAN requires Clang")
+    endif()
+    target_compile_options(embeddedlib_project_options INTERFACE -fsanitize=thread -fno-omit-frame-pointer)
+    target_link_options(embeddedlib_project_options INTERFACE -fsanitize=thread)
 endif()
 
 add_library(embeddedlib::project_options ALIAS embeddedlib_project_options)

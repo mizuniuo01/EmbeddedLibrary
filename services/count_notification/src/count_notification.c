@@ -13,7 +13,7 @@ typedef struct {
     uint32_t count;
     uint32_t maximum;
     const critical_section_port_t *critical;
-    const count_notification_wait_strategy_t *wait;
+    const waiter_port_t *wait_port;
     count_state_t state;
 } count_impl_t;
 _Static_assert(sizeof(count_impl_t) <= COUNT_NOTIFICATION_STORAGE_SIZE, "count storage too small");
@@ -58,7 +58,7 @@ static foundation_status_t give_internal(count_notification_t *n, bool isr, bool
         *y = false;
     (void)critical_section_exit(s->critical, t);
     if (r == FOUNDATION_STATUS_OK)
-        (void)s->wait->signal(s->wait->context);
+        (void)s->wait_port->signal_one(s->wait_port->context);
     return r;
 }
 /**
@@ -71,11 +71,12 @@ static foundation_status_t give_internal(count_notification_t *n, bool isr, bool
  * @retval FOUNDATION_STATUS_INVALID_ARGUMENT 参数非法。
  */
 foundation_status_t count_notification_init(count_notification_t *n, uint32_t maximum,
-    const critical_section_port_t *c, const count_notification_wait_strategy_t *w)
+    const critical_section_port_t *c, const waiter_port_t *wait_port)
 {
     count_impl_t *s;
     if ((n == NULL) || (maximum == 0U) || (c == NULL) || (c->enter == NULL) || (c->exit == NULL) ||
-        (w == NULL) || (w->wait == NULL) || (w->signal == NULL) || (w->cancel == NULL))
+        (wait_port == NULL) || (wait_port->wait == NULL) || (wait_port->signal_one == NULL) ||
+        (wait_port->cancel_all == NULL))
         return FOUNDATION_STATUS_INVALID_ARGUMENT;
     s = impl(n);
     if ((s->state == COUNT_READY) || (s->state == COUNT_STOPPED))
@@ -83,7 +84,7 @@ foundation_status_t count_notification_init(count_notification_t *n, uint32_t ma
     s->count = 0U;
     s->maximum = maximum;
     s->critical = c;
-    s->wait = w;
+    s->wait_port = wait_port;
     s->state = COUNT_READY;
     return FOUNDATION_STATUS_OK;
 }
@@ -121,7 +122,7 @@ foundation_status_t count_notification_stop(count_notification_t *n)
         return FOUNDATION_STATUS_INVALID_STATE;
     s->count = 0U;
     s->state = COUNT_STOPPED;
-    (void)s->wait->cancel(s->wait->context);
+    (void)s->wait_port->cancel_all(s->wait_port->context);
     return FOUNDATION_STATUS_OK;
 }
 /**
@@ -212,24 +213,33 @@ foundation_status_t count_notification_take(count_notification_t *n)
 /**
  * @brief 在有限 deadline 前等待并消耗一个通知计数。
  * @param n 通知对象。
+ * @param waiter 等待者对象。
  * @param d 绝对 deadline。
  * @retval FOUNDATION_STATUS_OK 消耗成功。
  * @retval FOUNDATION_STATUS_TIMEOUT 等待超时。
  * @retval FOUNDATION_STATUS_CANCELLED 等待被停止取消。
  */
-foundation_status_t count_notification_take_until(count_notification_t *n, uint32_t d)
+foundation_status_t count_notification_take_until(count_notification_t *n, waiter_t *waiter,
+    uint32_t d)
 {
     foundation_status_t r;
-    if (n == NULL)
+    if ((n == NULL) || (waiter == NULL))
         return FOUNDATION_STATUS_INVALID_ARGUMENT;
+    r = waiter_begin(waiter, n);
+    if (r != FOUNDATION_STATUS_OK)
+        return r;
     do {
         r = count_notification_take(n);
         if ((r == FOUNDATION_STATUS_INVALID_STATE) && (impl(n)->state == COUNT_STOPPED)) {
+            (void)waiter_complete(waiter, FOUNDATION_STATUS_CANCELLED);
             return FOUNDATION_STATUS_CANCELLED;
         }
-        if (r != FOUNDATION_STATUS_EMPTY)
+        if (r != FOUNDATION_STATUS_EMPTY) {
+            (void)waiter_complete(waiter, r);
             return r;
-        r = impl(n)->wait->wait(impl(n)->wait->context, d);
+        }
+        r = impl(n)->wait_port->wait(impl(n)->wait_port->context, waiter, d);
     } while (r == FOUNDATION_STATUS_OK);
+    (void)waiter_complete(waiter, r);
     return r;
 }

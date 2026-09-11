@@ -26,10 +26,31 @@ target_include_directories(test_critical_section PRIVATE "${EMBEDDEDLIB_TEST_SUP
 add_test(NAME critical_section.unit COMMAND test_critical_section)
 
 add_executable(test_concurrency_ports unit/test_concurrency_ports.c)
-target_link_libraries(test_concurrency_ports PRIVATE queue_port event_group count_notification
+target_link_libraries(test_concurrency_ports PRIVATE queue_port event_group count_notification mutex_port
     embeddedlib::project_options)
 target_include_directories(test_concurrency_ports PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME concurrency_ports.unit COMMAND test_concurrency_ports)
+
+add_executable(test_waiter unit/test_waiter.c)
+target_link_libraries(test_waiter PRIVATE waiter embeddedlib::project_options)
+target_include_directories(test_waiter PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME waiter.unit COMMAND test_waiter)
+
+if(UNIX)
+    find_package(Threads REQUIRED)
+    add_executable(test_posix_mutex support/test_posix_mutex.c)
+    target_link_libraries(test_posix_mutex PRIVATE mutex_port Threads::Threads embeddedlib::project_options)
+    target_include_directories(test_posix_mutex PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+    add_test(NAME posix_mutex.integration COMMAND test_posix_mutex)
+    add_executable(test_posix_queue_wait support/test_posix_queue_wait.c)
+    target_link_libraries(test_posix_queue_wait PRIVATE queue_port Threads::Threads embeddedlib::project_options)
+    target_include_directories(test_posix_queue_wait PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+    add_test(NAME posix_queue_wait.integration COMMAND test_posix_queue_wait)
+    add_executable(test_posix_event_count support/test_posix_event_count.c)
+    target_link_libraries(test_posix_event_count PRIVATE event_group count_notification Threads::Threads embeddedlib::project_options)
+    target_include_directories(test_posix_event_count PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+    add_test(NAME posix_event_count.integration COMMAND test_posix_event_count)
+endif()
 
 add_executable(test_numeric unit/test_numeric.c)
 target_link_libraries(test_numeric PRIVATE numeric)

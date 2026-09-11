@@ -84,7 +84,7 @@ P2 三批均支持多实例、静态分配和主机测试，不包含航向、�
 
 ### P3：并发端口与 FreeRTOS 适配 — 进行中
 
-阶段设计见 [docs/plans/P3_CONCURRENCY_PORTS.md](plans/P3_CONCURRENCY_PORTS.md)。第一批已完成时间端口、临界区端口、稳定状态码扩展和确定性 fake；第二批已完成队列、事件位组和计数通知，GCC、Clang、Sanitizer、静态检查、外部构建和 ARM compile-only 均通过。第三批互斥/POSIX 并发验证尚未开始。FreeRTOS 具体版本由首个新项目确定后锁定，适配器记录最低支持版本、当前验证版本和配置要求。
+阶段设计见 [docs/plans/P3_CONCURRENCY_PORTS.md](plans/P3_CONCURRENCY_PORTS.md)。第一批和第二批已完成；第三批已完成互斥、统一 waiter 迁移、POSIX 阻塞场景和 TSan 本地验证，当前等待远端 CI 后收尾。FreeRTOS 具体版本由首个新项目确定后锁定，适配器记录最低支持版本、当前验证版本和配置要求。
 
 ### P4：运行时 Services — 未开始
 

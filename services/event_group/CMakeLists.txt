@@ -1,3 +1,3 @@
 add_library(event_group STATIC src/event_group.c)
 target_include_directories(event_group PUBLIC include)
-target_link_libraries(event_group PUBLIC critical_section foundation_status PRIVATE embeddedlib::project_options)
+target_link_libraries(event_group PUBLIC critical_section foundation_status waiter PRIVATE embeddedlib::project_options)

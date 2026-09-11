@@ -15,7 +15,7 @@ case "$preset" in
     host-gcc)
         compiler="gcc-13"
         ;;
-    host-clang | host-sanitize)
+    host-clang | host-sanitize | host-tsan)
         compiler="clang-21"
         ;;
     *)

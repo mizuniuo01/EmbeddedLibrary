@@ -43,6 +43,18 @@ jobs:
           cmake --build --preset host-sanitize --verbose
           ctest --preset host-sanitize
 
+  tsan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ./.github/actions/setup-host-tools
+      - name: Configure, build and test with ThreadSanitizer
+        run: |
+          cmake --preset host-tsan
+          cmake --build --preset host-tsan
+          ctest --preset host-tsan
+
   cmake-minimum:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

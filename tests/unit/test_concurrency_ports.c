@@ -7,6 +7,7 @@
 
 #include "count_notification.h"
 #include "event_group.h"
+#include "mutex_port.h"
 #include "queue_port.h"
 
 typedef struct {
@@ -45,9 +46,10 @@ static foundation_status_t test_exit(void *context, critical_section_token_t tok
  * @param deadline 未使用的 deadline。
  * @retval FOUNDATION_STATUS_TIMEOUT 始终返回超时。
  */
-static foundation_status_t test_wait(void *context, uint32_t deadline)
+static foundation_status_t test_wait(void *context, waiter_t *waiter, uint32_t deadline)
 {
     (void)context;
+    (void)waiter;
     (void)deadline;
     return FOUNDATION_STATUS_TIMEOUT;
 }
@@ -79,23 +81,23 @@ int main(void)
 {
     const critical_section_port_t critical = {test_enter, test_exit, NULL};
     test_wait_context_t wait_context = {0U};
-    const queue_port_wait_strategy_t queue_wait = {
-        test_wait, test_signal, test_cancel, &wait_context};
-    const event_group_wait_strategy_t event_wait = {
-        test_wait, test_signal, test_cancel, &wait_context};
-    const count_notification_wait_strategy_t count_wait = {
-        test_wait, test_signal, test_cancel, &wait_context};
+    const waiter_port_t wait_port = {
+        test_wait, test_signal, test_signal, test_cancel, &wait_context};
+    const mutex_port_config_t mutex_config = {false, false};
     queue_port_t queue = {0};
     unsigned char queue_storage[sizeof(uint32_t) * 2U] = {0};
     event_group_t events = {0};
     count_notification_t notification = {0};
+    mutex_port_t mutex = {0};
+    waiter_t waiter = {0};
     uint32_t value = 7U;
     uint32_t output = 0U;
     uint32_t matched = 0U;
     bool should_yield = true;
+    TEST_ASSERT(waiter_init(&waiter) == FOUNDATION_STATUS_OK);
 
     TEST_ASSERT(queue_port_init(&queue, queue_storage, sizeof(queue_storage), sizeof(value), 2U,
-                    &critical, &queue_wait) == FOUNDATION_STATUS_OK);
+                    &critical, &wait_port) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(queue_port_try_push(&queue, &value) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(queue_port_push_isr(&queue, &value, &should_yield) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(!should_yield);
@@ -103,7 +105,8 @@ int main(void)
     TEST_ASSERT(queue_port_try_pop(&queue, &output) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(output == value);
     TEST_ASSERT(queue_port_try_pop(&queue, &output) == FOUNDATION_STATUS_OK);
-    TEST_ASSERT(queue_port_pop_until(&queue, &output, 10U) == FOUNDATION_STATUS_TIMEOUT);
+    TEST_ASSERT(queue_port_pop_until(&queue, &waiter, &output, 10U) == FOUNDATION_STATUS_TIMEOUT);
+    TEST_ASSERT(waiter_reset(&waiter) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(queue_port_stop(&queue) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(wait_context.cancel_count == 1U);
     TEST_ASSERT(queue_port_start(&queue) == FOUNDATION_STATUS_OK);
@@ -111,24 +114,43 @@ int main(void)
     TEST_ASSERT(queue_port_stop(&queue) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(queue_port_deinit(&queue) == FOUNDATION_STATUS_OK);
 
-    TEST_ASSERT(event_group_init(&events, &critical, &event_wait) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(event_group_init(&events, &critical, &wait_port) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(event_group_set(&events, 0x03U) == FOUNDATION_STATUS_OK);
-    TEST_ASSERT(event_group_wait_any(&events, 0x05U, true, 10U, &matched) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(event_group_wait_any(&events, &waiter, 0x05U, true, 10U, &matched) ==
+                FOUNDATION_STATUS_OK);
+    TEST_ASSERT(waiter_reset(&waiter) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(matched == 0x01U);
-    TEST_ASSERT(event_group_wait_all(&events, 0x03U, false, 10U, &matched) ==
+    TEST_ASSERT(event_group_wait_all(&events, &waiter, 0x03U, false, 10U, &matched) ==
                 FOUNDATION_STATUS_TIMEOUT);
+    TEST_ASSERT(waiter_reset(&waiter) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(event_group_stop(&events) == FOUNDATION_STATUS_OK);
 
-    TEST_ASSERT(count_notification_init(&notification, 1U, &critical, &count_wait) ==
+    TEST_ASSERT(count_notification_init(&notification, 1U, &critical, &wait_port) ==
                 FOUNDATION_STATUS_OK);
     TEST_ASSERT(count_notification_give(&notification) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(count_notification_give_isr(&notification, &should_yield) ==
                 FOUNDATION_STATUS_OVERFLOW);
     TEST_ASSERT(count_notification_take(&notification) == FOUNDATION_STATUS_OK);
-    TEST_ASSERT(count_notification_take_until(&notification, 10U) == FOUNDATION_STATUS_TIMEOUT);
+    TEST_ASSERT(count_notification_take_until(&notification, &waiter, 10U) ==
+                FOUNDATION_STATUS_TIMEOUT);
+    TEST_ASSERT(waiter_reset(&waiter) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(count_notification_stop(&notification) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(count_notification_start(&notification) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(count_notification_stop(&notification) == FOUNDATION_STATUS_OK);
     TEST_ASSERT(count_notification_deinit(&notification) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_init(&mutex, &critical, &wait_port, &mutex_config) ==
+                FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_try_lock(&mutex, 1U) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_try_lock(&mutex, 1U) == FOUNDATION_STATUS_INVALID_STATE);
+    TEST_ASSERT(mutex_port_try_lock(&mutex, 2U) == FOUNDATION_STATUS_BUSY);
+    TEST_ASSERT(mutex_port_unlock(&mutex, 2U) == FOUNDATION_STATUS_INVALID_ARGUMENT);
+    TEST_ASSERT(mutex_port_unlock(&mutex, 1U) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_lock_until(&mutex, &waiter, 2U, 10U) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_stop(&mutex) == FOUNDATION_STATUS_BUSY);
+    TEST_ASSERT(mutex_port_unlock(&mutex, 2U) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_stop(&mutex) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_start(&mutex) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_stop(&mutex) == FOUNDATION_STATUS_OK);
+    TEST_ASSERT(mutex_port_deinit(&mutex) == FOUNDATION_STATUS_OK);
     return 0;
 }
