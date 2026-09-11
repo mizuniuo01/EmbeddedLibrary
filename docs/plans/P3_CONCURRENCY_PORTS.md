@@ -1,6 +1,6 @@
 # P3 并发端口与运行环境适配阶段设计
 
-状态：进行中（第三批本地验证完成，等待远端 CI）
+状态：已完成（三批实现、本地验证和远端 CI 均已闭环）
 
 P3 分三批完成：第一批为 32/64 位单调时间、token 型临界区和公共错误契约；第二批为固定元素
 复制队列、32 位事件位组和计数通知；第三批为非递归互斥、POSIX 测试适配、并发验证和
@@ -41,5 +41,7 @@ notification/mutex 的阻塞 API 已切换为显式 waiter 参数，等待端口
 event wait-any 和 notification 等待唤醒；GCC/Clang 各 26 项、Sanitizer 27 项、TSan 26 项测试，
 外部接入、clang-format、Clang-Tidy、Cppcheck 和 Cortex-M0+ compile-only 均在本地通过。
 
-第三批本地闭环完成。仍待用户提交推送后的远端 CI；P3 完成后成熟度仍为
-`host-tested / hardware-unverified`，FreeRTOS 适配器版本和实际 RTOS 运行验证留待首个项目。
+第三批本地和远端验证均已闭环。提交 `93a6b2ae076bad1d9f85b5f85b54477accfd37f7` 对应运行
+[`34574836170`](https://github.com/mizuniuo01/EmbeddedLibrary/actions/runs/34574836170)，六项 job
+全部成功。P3 成熟度为 `host-tested / hardware-unverified`；FreeRTOS 适配器版本、实际 RTOS 运行
+验证、目标硬件行为和 WCET 留待首个实际项目。

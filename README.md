@@ -6,8 +6,9 @@ Driver 和具体业务无关，并优先在主机环境中验证。
 ## 当前状态
 
 仓库正在按 [docs/PLAN.md](docs/PLAN.md) 建设。P0、P1、P2 已完成，P3 第一批已完成，包含基础契约、编码算法、
-有界容器、PID、滤波/限制器、事务式串级 PID、时间端口、临界区端口和非递归互斥端口；P3
-端口；P3 本地并发验证已完成，等待远端 CI；FreeRTOS 适配尚未实现。组件契约见 `docs/components/`，阶段证据见 `docs/plans/`。
+有界容器、PID、滤波/限制器、事务式串级 PID、时间端口、临界区端口、非递归互斥端口和统一 waiter
+端口；P3 已完成本地及远端验证，成熟度为 `host-tested / hardware-unverified`。FreeRTOS 适配尚未实现，
+将在首个实际项目确定版本后单独规划。组件契约见 `docs/components/`，阶段证据见 `docs/plans/`。
 
 ## 主机检查
 

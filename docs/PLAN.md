@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：P2 已完成；P3 等待用户开启阶段性规划
+> 计划状态：P3 已完成；P4 等待用户开启阶段性规划
 >
 > 规范基线：架构规范 v1.3.0、代码风格规范 v1.2.0、仓库工作流规范 v1.0.0
 
@@ -82,9 +82,9 @@ P2 三批均支持多实例、静态分配和主机测试，不包含航向、�
 的 `host (gcc)`、`host (clang)`、`sanitizer`、`cmake-minimum` 和 `arm-cortex-m0plus` 五项任务全部成功。
 成熟度为 `host-tested / hardware-unverified`。定点算法、RTOS 调度、目标硬件行为和 WCET 不在 P2 验证范围内。
 
-### P3：并发端口与 FreeRTOS 适配 — 进行中
+### P3：并发端口与 FreeRTOS 适配 — 已完成
 
-阶段设计见 [docs/plans/P3_CONCURRENCY_PORTS.md](plans/P3_CONCURRENCY_PORTS.md)。第一批和第二批已完成；第三批已完成互斥、统一 waiter 迁移、POSIX 阻塞场景和 TSan 本地验证，当前等待远端 CI 后收尾。FreeRTOS 具体版本由首个新项目确定后锁定，适配器记录最低支持版本、当前验证版本和配置要求。
+阶段设计见 [docs/plans/P3_CONCURRENCY_PORTS.md](plans/P3_CONCURRENCY_PORTS.md)。P3 三批已完成：时间/临界区、queue/event/count notification、非递归 mutex、统一 waiter、POSIX 阻塞测试和 TSan。提交 `93a6b2ae076bad1d9f85b5f85b54477accfd37f7` 对应远端运行 [`34574836170`](https://github.com/mizuniuo01/EmbeddedLibrary/actions/runs/34574836170)，六项 job（GCC、Clang、Sanitizer、TSan、最低 CMake、ARM Cortex-M0+）全部成功。成熟度为 `host-tested / hardware-unverified`；FreeRTOS 具体版本由首个新项目确定，适配器和目标板运行验证不在 P3 范围内。
 
 ### P4：运行时 Services — 未开始
 
