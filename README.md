@@ -5,10 +5,11 @@ Driver 和具体业务无关，并优先在主机环境中验证。
 
 ## 当前状态
 
-仓库正在按 [docs/PLAN.md](docs/PLAN.md) 建设。P0、P1、P2 已完成，P3 第一批已完成，包含基础契约、编码算法、
-有界容器、PID、滤波/限制器、事务式串级 PID、时间端口、临界区端口、非递归互斥端口和统一 waiter
-端口；P3 已完成本地及远端验证，成熟度为 `host-tested / hardware-unverified`。FreeRTOS 适配尚未实现，
-将在首个实际项目确定版本后单独规划。组件契约见 `docs/components/`，阶段证据见 `docs/plans/`。
+仓库已完成原 P0-P3 的基础设施、基础组件、控制算法和并发实验组件，成熟度为
+`host-tested / hardware-unverified`。当前按新的 [总体建设计划](docs/PLAN.md) 推进：主线聚焦最小裸机调度、
+数据交换、通信、诊断、参数和菜单；成熟能力按实际需求引入，RTOS 项目优先使用内核原生机制。
+现有代码的规划定位见 [已有资产登记](docs/ASSET_REGISTER.md)，组件契约和历史阶段证据继续保存在
+`docs/components/` 与 `docs/plans/`。
 
 ## 主机检查
 
