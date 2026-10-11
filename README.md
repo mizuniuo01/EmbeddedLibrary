@@ -5,11 +5,9 @@ Driver 和具体业务无关，并优先在主机环境中验证。
 
 ## 当前状态
 
-仓库已完成原 P0-P3 的基础设施、基础组件、控制算法和并发实验组件，成熟度为
-`host-tested / hardware-unverified`。当前按新的 [总体建设计划](docs/PLAN.md) 推进：主线聚焦最小裸机调度、
-数据交换、通信、诊断、参数和菜单；成熟能力按实际需求引入，RTOS 项目优先使用内核原生机制。
-现有代码的规划定位见 [已有资产登记](docs/ASSET_REGISTER.md)，组件契约和历史阶段证据继续保存在
-`docs/components/` 与 `docs/plans/`。
+当前路线只进行文档规划，仓库中已有的旧生产代码作为历史资产保留；新的生产文件将随着学习和实际项目逐步积累。总体路线见
+[docs/PLAN.md](docs/PLAN.md)，生产文件清单见 [docs/FILE_CATALOG.md](docs/FILE_CATALOG.md)。
+规范和 Profile 是代码建设的前置依据；具体阶段由用户手动开启，未开启阶段不创建生产文件。
 
 ## 主机检查
 
