@@ -3,6 +3,14 @@ set -eu
 
 preset="${1:-host-gcc}"
 
+for standard_file in docs/ENGINEERING_PROFILE.yaml docs/CODING_STYLE.md \
+    docs/ARCHITECTURE_STANDARD.md; do
+    if [ ! -r "$standard_file" ]; then
+        echo "$standard_file is required" >&2
+        exit 1
+    fi
+done
+
 require_command()
 {
     command -v "$1" >/dev/null 2>&1 || {
@@ -54,29 +62,28 @@ if ! git grep -Ilz -e '' | xargs -0 -r sh -c '
     exit 1
 fi
 
-rg --files -0 -g '*.c' -g '*.h' -g '!build/**' |
-    xargs -0 -r clang-format-21 --style=file --dry-run --Werror
-
-for source_file in $(rg --files -g '*.c' -g '!build/**'); do
-    head -n 20 "$source_file" | rg -q '@file' || {
-        echo "$source_file: missing Doxygen @file header" >&2
-        exit 1
-    }
-    head -n 20 "$source_file" | rg -q '@brief' || {
-        echo "$source_file: missing Doxygen @brief header" >&2
-        exit 1
-    }
-done
-
-if rg -n '^/\*\*.*@(param|return|retval)' libraries tests -g '*.c'; then
-    echo "function Doxygen tags must use the multiline format" >&2
+if ! rg --files -g '*.c' -g '*.h' -g '*.cpp' -g '*.hpp' -g '*.md' \
+    -g '*.sh' -g '*.txt' -g '*.yaml' -g '*.yml' -g '*.json' -g '.clang-*' \
+    -g '.editorconfig' -g '.gitattributes' -0 |
+    xargs -0 -r sh -c '
+        status=0
+        for file do
+            if [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -ne 1 ]; then
+                echo "$file: missing final newline" >&2
+                status=1
+            fi
+        done
+        exit "$status"
+    ' sh; then
     exit 1
 fi
 
-if rg -n '@file|@param|@return|@retval' libraries tests -g '*.h'; then
-    echo "header files must not contain file or function Doxygen documentation" >&2
-    exit 1
-fi
+source_files="tools/checked_sources.txt"
+source_files_c="build/check-source-files.c.txt"
+mkdir -p build
+grep '\.c$' "$source_files" > "$source_files_c"
+
+xargs -r clang-format-21 --style=file --dry-run --Werror < "$source_files"
 
 cmake --preset "$preset"
 cmake --build --preset "$preset"
@@ -89,8 +96,11 @@ cmake --build "$external_build_dir"
 ctest --test-dir "$external_build_dir" --output-on-failure
 
 build_dir="build/$preset"
-run-clang-tidy-21 -p="$build_dir" -clang-tidy-binary clang-tidy-21 -quiet
+source_regex="$(sed -e 's/[.[\^$*+?(){|\\]/\\&/g' tools/checked_sources.txt |
+    sed ':a;N;$!ba;s/\n/|/g')"
+run-clang-tidy-21 -p="$build_dir" -clang-tidy-binary clang-tidy-21 -quiet \
+    -source-filter=".*(${source_regex})$"
 
 cppcheck --enable=warning,style,performance,portability --error-exitcode=1 \
     --inline-suppr --language=c --std=c11 \
-    --suppress=missingIncludeSystem -i build .
+    --suppress=missingIncludeSystem --file-list="$source_files_c"

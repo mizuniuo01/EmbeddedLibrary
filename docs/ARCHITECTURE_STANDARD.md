@@ -4,7 +4,7 @@
 > 状态：Active<br>
 > 适用范围：采用 `docs/ENGINEERING_PROFILE.yaml` 的 MCU 裸机/RTOS 项目
 
-本文档是架构规范的入口说明，不复制完整的架构或 RTOS 手册。项目规范配置文件为 `docs/ENGINEERING_PROFILE.yaml`，该文件声明执行模型和参考资料；agent 按本文档的个人架构规则审查分层、接口、所有权和执行边界。
+本文档是架构规范的解释入口，不复制完整的架构或 RTOS 手册。`ENGINEERING_PROFILE.yaml` 是 Agent skills 使用的机器可读架构规则和项目上下文来源；本文档解释职责、边界和审查方法。Profile 的显式配置优先。
 
 ## 1. 参考来源
 
@@ -18,7 +18,7 @@
 默认职责分层如下：
 
 ```text
-Composition Root
+Composition Root（装配边界）
 ├── Application
 ├── Domain
 ├── Services
@@ -29,7 +29,9 @@ Composition Root
         └── Vendor SDK / HAL / Registers
 ```
 
-Composition Root 负责实例创建、依赖绑定、配置装配和启动/关闭顺序。Application 负责产品流程、模式、命令编排和任务/主循环注册。Domain 负责产品规则、领域模型、状态机和算法协调。Services 提供时间、日志、错误、参数、存储和诊断等横向能力。Libraries 提供平台无关算法和数据结构。Middleware 承载 FreeRTOS、网络栈、文件系统、GUI 和第三方协议栈。BSP 负责板级资源绑定、时钟、电源、DMA、IRQ、外设实例和板级安全。Drivers 负责外设和器件机制，不决定产品模式和业务策略。
+Composition Root 负责实例创建、依赖绑定、配置装配和启动/关闭顺序。Application 负责产品流程、模式、命令编排和任务/主循环注册。Domain 负责产品规则、领域模型、状态机和算法协调。Services 提供时间、日志、错误、参数、存储和诊断等横向能力。Libraries 提供平台无关算法和数据结构。Middleware 承载 FreeRTOS、网络栈、文件系统、GUI 和第三方协议栈；第三方栈适配属于 Middleware 内部职责，不承载产品规则。BSP 负责板级资源绑定、时钟、电源、DMA、IRQ、外设实例和板级安全。Drivers 负责外设和器件机制，不决定产品模式和业务策略。
+
+Composition Root 不是运行时业务层。它只负责创建对象、绑定依赖、选择执行模型和安排启动/关闭顺序；运行时业务流程由 Application 负责。
 
 允许依赖矩阵：
 
@@ -40,11 +42,11 @@ Composition Root 负责实例创建、依赖绑定、配置装配和启动/关�
 | Domain | Services、Libraries、项目端口 | Application、BSP、Drivers、RTOS 类型 |
 | Services | Libraries、Middleware 公共 API、BSP 能力接口、注入端口 | Application 流程、Domain 私有状态、Vendor/HAL |
 | Libraries | 标准库、同级基础库、注入端口 | Application、Domain、BSP、Drivers |
-| Middleware 适配 | Middleware API、BSP、Drivers、Vendor/HAL | 产品规则和 Application 私有状态 |
+| Middleware | Middleware API、BSP、Drivers、Vendor/HAL | 产品规则和 Application 私有状态 |
 | BSP | Drivers、Vendor/HAL、板级配置 | Application 流程、Domain 规则 |
 | Drivers | Vendor/HAL、寄存器、底层端口 | Application、Domain、产品策略 |
 
-项目必须在 Profile 中把实际目录或厂商框架映射到上述职责；偏离矩阵时必须登记例外。
+项目必须在 Profile 的 `architecture.directory_map` 中把实际目录或厂商框架映射到上述职责；偏离矩阵时必须登记例外。
 
 ### 分层
 
@@ -60,7 +62,7 @@ Composition Root 负责实例创建、依赖绑定、配置装配和启动/关�
 - 每项硬件资源和可变数据有唯一所有者；其他模块使用命令、事件、只读快照或明确同步协议。
 - C/C++ 公共边界只能使用双方都能表达且 ABI 已验证的类型。
 
-同一分层同时支持裸机和 FreeRTOS。Domain 和 Libraries 必须保持执行模型无关，除非 Profile 登记例外；Services 通过时间、事件和同步端口适配两种模型；Application 在裸机中注册主循环/协作任务，在 FreeRTOS 中注册任务入口和优先级；Middleware 在裸机 Profile 中不启用，在 FreeRTOS Profile 中承载内核。任务按实时约束、阻塞行为、故障隔离和资源所有权划分，不按文件数量创建。
+同一分层同时支持裸机和 FreeRTOS。Domain 和 Libraries 必须保持执行模型无关，除非 Profile 登记例外；Services 通过时间、事件和同步端口适配两种模型；Application 在裸机中注册主循环/协作任务，在 FreeRTOS 中注册任务入口和优先级。任务按实时约束、阻塞行为、故障隔离和资源所有权划分，不按文件数量创建。
 
 公共接口最低说明生命周期、所有权、参数方向、阻塞性/执行上下文、并发限制和错误结果。
 

@@ -25,6 +25,7 @@
 | `libraries/byte_fifo/byte_fifo.c` | Libraries | 现有 | 重写 | 字节顺序缓冲 |
 | `libraries/snapshot_buffer/snapshot_buffer.h` | Libraries | 现有 | 保留 | 快照发布储备 |
 | `libraries/snapshot_buffer/snapshot_buffer.c` | Libraries | 现有 | 保留 | 快照发布储备 |
+| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 自研 | 仓库公共操作结果 |
 
 ## 控制算法
 
@@ -49,8 +50,8 @@
 
 | 目标文件 | 层级 | 状态 | 计划动作 | 职责 |
 | --- | --- | --- | --- | --- |
-| `services/scheduler/scheduler.h` | Services | 无 | 自研 | 裸机协作调度 |
-| `services/scheduler/scheduler.c` | Services | 无 | 自研 | 裸机协作调度 |
+| `services/scheduler/scheduler.h` | Services | 现有 | 自研 | 裸机协作调度 |
+| `services/scheduler/scheduler.c` | Services | 现有 | 自研 | 裸机协作调度 |
 | `services/frame/frame.h` | Services | 无 | 建立骨架 | 帧边界和处理状态 |
 | `services/frame/frame.c` | Services | 无 | 建立骨架 | 帧边界和处理状态 |
 | `services/communication/communication.h` | Services | 无 | 建立骨架 | 通信组合和错误边界 |
@@ -65,6 +66,8 @@
 | `services/menu/menu.c` | Services | 无 | 自研 | 菜单状态机 |
 | `services/command/command.h` | Services | 无 | 自研 | 静态命令路由 |
 | `services/command/command.c` | Services | 无 | 自研 | 静态命令路由 |
+
+S1 的 scheduler 使用项目提供的静态配置表和运行槽数组，只在主循环调用；不处理 ISR、DMA 或 RTOS 事件。
 
 `byte_stream` 不建立自研文件，优先采用成熟实现、平台能力或项目传输接口。
 

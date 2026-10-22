@@ -3,10 +3,7 @@ Checks: >-
   bugprone-*,
   cert-*,
   clang-analyzer-*,
-  portability-*,
-  -cert-err33-c,
-  -cert-dcl37-c,
-  -cert-dcl51-cpp
+  portability-*
 WarningsAsErrors: '*'
-HeaderFilterRegex: '(^|/)(libraries|services|adapters|tests)/.*\.(c|h)$'
+HeaderFilterRegex: '(^|/)(libraries|services|tests)/.*\.(c|h)$'
 FormatStyle: file

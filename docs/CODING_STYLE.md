@@ -4,7 +4,7 @@
 > 状态：Active<br>
 > 适用范围：采用 `docs/ENGINEERING_PROFILE.yaml` 的 MCU 裸机/RTOS 项目
 
-本文档是风格规范的入口说明，不复制完整的外部标准。项目通过 Profile 声明实际采用的语言标准、外部规范、工具链和个人规则；agent 必须先读取 Profile，再按适用语言审查或生成代码。
+本文档是风格规范的解释入口，不复制完整的外部标准。`ENGINEERING_PROFILE.yaml` 是 Agent skills 使用的机器可读规则和项目上下文来源；本文档解释规则、来源和边界。Profile 的显式配置优先，未覆盖的内容继续采用其声明的外部标准。
 
 ## 1. 外部规范来源
 
@@ -20,6 +20,8 @@
 - 风格参考：[Google C++ Style Guide](https://google.github.io/styleguide/cppguide)。
 - 语言和设计参考：[C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)。
 - C++ 必须按嵌入式 Profile 使用。默认 C++17；异常、RTTI、动态分配、标准库、协程和 C++20 特性必须由 Profile 明确启用并验证。
+- C++ 命名默认采用 Profile 中的 `personal_rules.naming.cpp`（Google C++ Style）；C 的模块前缀命名规则不自动套用到 C++ 类型和函数。
+- 指针声明排版按语言分别采用 Profile 的 `personal_rules.naming.pointer_declaration`；C 沿用 Linux 风格，C++ 遵循 Google C++ Style。
 - ISR、硬实时路径、任务入口、DMA、MMIO、栈、堆、Flash、ABI 和启动初始化属于额外嵌入式边界。
 
 ## 2. 个人规则
@@ -50,7 +52,7 @@
 
 ## 3. Profile 使用方式
 
-项目规范配置文件为 `docs/ENGINEERING_PROFILE.yaml`；该文件声明语言、外部规范、C++ 嵌入式限制、FreeRTOS、工具链、ABI、个人规则和项目例外。
+项目规范配置文件为 `docs/ENGINEERING_PROFILE.yaml`；该文件声明语言、外部规范、C++ 嵌入式限制、执行模型、工具链、ABI、个人规则和结构化覆盖。Profile 中的 `overrides` 是外部规范差异的唯一登记位置。
 
 没有 Profile 时，agent 必须报告“规范来源未确定”，不得宣称代码符合本规范。
 

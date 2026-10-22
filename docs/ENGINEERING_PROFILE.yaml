@@ -1,8 +1,10 @@
-# 项目唯一的工程规范入口。
+# 项目工程规范和 Agent skills 的机器可读上下文入口。
 # 复制到项目 docs/ENGINEERING_PROFILE.yaml 后，按项目事实修改。
 profile:
   name: embedded-mcu-default
   version: 1
+  coding_style_doc: 1.0.0
+  architecture_doc: 1.0.0
 
 language:
   c:
@@ -38,7 +40,6 @@ architecture:
     - bare_metal
     - freertos
   layers:
-    - composition_root
     - application
     - domain
     - services
@@ -46,6 +47,16 @@ architecture:
     - middleware
     - bsp
     - drivers
+  composition_root: project_defined
+  directory_map:
+    application: project_defined
+    domain: project_defined
+    services: project_defined
+    libraries: project_defined
+    middleware: project_defined
+    bsp: project_defined
+    drivers: project_defined
+    vendor_sdk: project_defined
   personal_rules:
     layering: required
     interfaces: caller_oriented_minimal
@@ -56,6 +67,16 @@ architecture:
       - blocking_context
       - concurrency
       - errors
+
+overrides:
+  - source: BARR-C:2018
+    rule: line_width
+    decision: 100_columns
+    reason: project_baseline
+  - source: BARR-C:2018
+    rule: 8.2.a
+    decision: single_statement_branches_may_omit_braces
+    reason: project_linux_k_and_r_style
 
 rtos:
   name: freertos
@@ -77,9 +98,12 @@ personal_rules:
     public_api: kernel_doc_when_needed
   naming:
     c: module_prefixed_snake_case
+    cpp: google_cpp_style
     type: module_role_t
     module_prefix_abbreviation: conditional_with_five_checks
-    pointer_declaration: star_adjacent_to_name
+    pointer_declaration:
+      c: star_adjacent_to_name
+      cpp: google_style
   expressions:
     operator_spacing: barr_c_linux
     extra_parentheses_in_complex_conditions: true
