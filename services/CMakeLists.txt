@@ -1,3 +1,4 @@
+add_subdirectory(scheduler)
 add_subdirectory(time_port)
 add_subdirectory(critical_section)
 add_subdirectory(queue_port)

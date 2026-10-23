@@ -10,6 +10,11 @@ target_link_libraries(test_foundation_status PRIVATE foundation_status)
 target_include_directories(test_foundation_status PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME foundation_status.unit COMMAND test_foundation_status)
 
+add_executable(test_scheduler unit/test_scheduler.c)
+target_link_libraries(test_scheduler PRIVATE scheduler embeddedlib::project_options)
+target_include_directories(test_scheduler PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME scheduler.unit COMMAND test_scheduler)
+
 add_executable(test_tick32 unit/test_tick32.c)
 target_link_libraries(test_tick32 PRIVATE tick32)
 target_include_directories(test_tick32 PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")

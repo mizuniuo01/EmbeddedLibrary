@@ -1,3 +1,4 @@
+add_subdirectory(mizu_status)
 add_subdirectory(foundation_status)
 add_subdirectory(tick32)
 add_subdirectory(numeric)
