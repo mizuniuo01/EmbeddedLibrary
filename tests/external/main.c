@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "byte_fifo.h"
+#include "mizu_fifo.h"
 #include "deadband.h"
 #include "first_order_filter.h"
 #include "hysteresis.h"
@@ -21,7 +21,7 @@ int main(void)
     uint8_t storage[2];
     uint8_t value = 7U;
     uint8_t output = 0U;
-    byte_fifo_t fifo = {0};
+    mizu_fifo_t fifo = {0};
     first_order_filter_f32_t filter = {0};
     moving_average_f32_t average = {0};
     hysteresis_f32_t hysteresis = {0};
@@ -29,13 +29,13 @@ int main(void)
     rate_limiter_f32_t limiter = {0};
     float samples[1];
     float result;
-    if (byte_fifo_init(&fifo, storage, sizeof(storage)) != FOUNDATION_STATUS_OK) {
+    if (mizu_fifo_init(&fifo, storage, sizeof(storage)) != MIZU_STATUS_OK) {
         return 1;
     }
-    if (byte_fifo_push(&fifo, value) != FOUNDATION_STATUS_OK) {
+    if (mizu_fifo_push(&fifo, value) != MIZU_STATUS_OK) {
         return 1;
     }
-    if (byte_fifo_pop(&fifo, &output) != FOUNDATION_STATUS_OK) {
+    if (mizu_fifo_pop(&fifo, &output) != MIZU_STATUS_OK) {
         return 1;
     }
     if ((output != value) ||

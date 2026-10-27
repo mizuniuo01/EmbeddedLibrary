@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：S1 实现已完成；等待用户手动开启 S2
+> 计划状态：S2 实现已完成；等待用户手动开启 S3
 >
 > 规范入口：`docs/ENGINEERING_PROFILE.yaml`、`docs/ARCHITECTURE_STANDARD.md`、
 > `docs/CODING_STYLE.md`、`docs/REPOSITORY_WORKFLOW.md`
@@ -70,9 +70,10 @@
 最小裸机协作式调度器。任务配置在编译期固定，运行状态由调用方提供静态槽数组；
 调度器只在主循环更新和执行，不处理 ISR、DMA、外部事件或 RTOS 调度。
 
-### S2：`byte_fifo.h/.c` — 未开始
+### S2：`mizu_fifo.h/.c` — 已完成
 
-按当前规范复核并重写通信 FIFO；先确认成熟实现是否足够。
+建设基于参考工程语义的通信字节暂存 FIFO：外部静态存储、双游标、保留一个空槽、
+满载拒绝新数据。组件只规定单生产者/单消费者使用约束，不负责平台同步或帧解析。
 
 ### S3：`frame.h/.c` — 未开始
 

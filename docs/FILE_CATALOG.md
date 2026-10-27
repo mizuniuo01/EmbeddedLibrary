@@ -21,8 +21,8 @@
 | `libraries/numeric/numeric.c` | Libraries | 现有 | 保留 | 数值检查和辅助 |
 | `libraries/tick32/tick32.h` | Libraries | 现有 | 保留 | tick 计算 |
 | `libraries/tick32/tick32.c` | Libraries | 现有 | 保留 | tick 计算 |
-| `libraries/byte_fifo/byte_fifo.h` | Libraries | 现有 | 重写 | 字节顺序缓冲 |
-| `libraries/byte_fifo/byte_fifo.c` | Libraries | 现有 | 重写 | 字节顺序缓冲 |
+| `libraries/mizu_fifo/mizu_fifo.h` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
+| `libraries/mizu_fifo/mizu_fifo.c` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
 | `libraries/snapshot_buffer/snapshot_buffer.h` | Libraries | 现有 | 保留 | 快照发布储备 |
 | `libraries/snapshot_buffer/snapshot_buffer.c` | Libraries | 现有 | 保留 | 快照发布储备 |
 | `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 自研 | 仓库公共操作结果 |
