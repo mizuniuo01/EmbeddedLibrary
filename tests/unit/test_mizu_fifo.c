@@ -96,9 +96,15 @@ static int test_invalid_arguments(void)
 
 int main(void)
 {
-    TEST_ASSERT(test_initialization() == 0);
-    TEST_ASSERT(test_full_and_empty() == 0);
-    TEST_ASSERT(test_wraparound() == 0);
-    TEST_ASSERT(test_invalid_arguments() == 0);
+    int (* const cases[])(void) = {test_initialization, test_full_and_empty, test_wraparound,
+                                   test_invalid_arguments};
+
+    for (size_t index = 0U; index < sizeof(cases) / sizeof(cases[0]); ++index) {
+        const int result = cases[index]();
+
+        if (result != 0) {
+            return result;
+        }
+    }
     return 0;
 }
