@@ -1,107 +1,64 @@
 # EmbeddedLibrary 生产文件清单
 
-本清单同时记录储备库文件和后续计划。只记录生产代码文件，不记录测试、文档、构建工具和临时产物。
+本清单只记录当前主线生产代码和明确的未来阶段目标，不记录测试、文档、构建工具、临时产物或已归档源码。
 
-状态含义：`现有` 表示文件已经存在；`进行中` 表示当前阶段正在实现；`无` 表示目标文件尚未创建。
+状态含义：`现有` 表示当前主线文件已经存在；`无` 表示目标文件尚未创建。
 
-计划动作：`保留`、`重写`、`成熟库替换`、`按需创建`、`归档`。
-
-同一组件的 `.h/.c` 目标路径放在同一目录。当前部分旧组件仍使用 `include/` 和 `src/`，阶段重写时再迁移到目标路径。
-
-## 裸机基础与数据
-
-| 目标文件 | 层级 | 状态 | 计划动作 | 职责 |
-| --- | --- | --- | --- | --- |
-| `services/time_port/time_port.h` | Services | 现有 | 保留 | 单调时间来源边界 |
-| `services/time_port/time_port.c` | Services | 现有 | 保留 | 单调时间来源边界 |
-| `services/critical_section/critical_section.h` | Services | 现有 | 保留 | ISR/主循环短临界区边界 |
-| `services/critical_section/critical_section.c` | Services | 现有 | 保留 | ISR/主循环短临界区边界 |
-| `libraries/foundation_status/foundation_status.h` | Libraries | 现有 | 保留 | 基础状态结果 |
-| `libraries/numeric/numeric.h` | Libraries | 现有 | 保留 | 数值检查和辅助 |
-| `libraries/numeric/numeric.c` | Libraries | 现有 | 保留 | 数值检查和辅助 |
-| `libraries/tick32/tick32.h` | Libraries | 现有 | 保留 | tick 计算 |
-| `libraries/tick32/tick32.c` | Libraries | 现有 | 保留 | tick 计算 |
-| `libraries/mizu_fifo/mizu_fifo.h` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
-| `libraries/mizu_fifo/mizu_fifo.c` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
-| `libraries/snapshot_buffer/snapshot_buffer.h` | Libraries | 现有 | 保留 | 快照发布储备 |
-| `libraries/snapshot_buffer/snapshot_buffer.c` | Libraries | 现有 | 保留 | 快照发布储备 |
-| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 自研 | 仓库公共操作结果 |
-
-## 控制算法
-
-| 目标文件 | 层级 | 状态 | 计划动作 | 职责 |
-| --- | --- | --- | --- | --- |
-| `libraries/pid/pid.h` | Libraries | 现有 | 重写 | 基础 PID |
-| `libraries/pid/pid.c` | Libraries | 现有 | 重写 | 基础 PID |
-| `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 现有 | 重写 | 串级 PID |
-| `libraries/cascaded_pid/cascaded_pid.c` | Libraries | 现有 | 重写 | 串级 PID |
-| `libraries/first_order_filter/first_order_filter.h` | Libraries | 现有 | 整理阶段 | 一阶滤波 |
-| `libraries/first_order_filter/first_order_filter.c` | Libraries | 现有 | 整理阶段 | 一阶滤波 |
-| `libraries/moving_average/moving_average.h` | Libraries | 现有 | 整理阶段 | 滑动平均 |
-| `libraries/moving_average/moving_average.c` | Libraries | 现有 | 整理阶段 | 滑动平均 |
-| `libraries/hysteresis/hysteresis.h` | Libraries | 现有 | 整理阶段 | 迟滞 |
-| `libraries/hysteresis/hysteresis.c` | Libraries | 现有 | 整理阶段 | 迟滞 |
-| `libraries/deadband/deadband.h` | Libraries | 现有 | 整理阶段 | 死区 |
-| `libraries/deadband/deadband.c` | Libraries | 现有 | 整理阶段 | 死区 |
-| `libraries/rate_limiter/rate_limiter.h` | Libraries | 现有 | 整理阶段 | 速率限制 |
-| `libraries/rate_limiter/rate_limiter.c` | Libraries | 现有 | 整理阶段 | 速率限制 |
-
-## 通信与横向 Services
+## 已完成主线
 
 | 目标文件 | 层级 | 状态 | 计划动作 | 职责 |
 | --- | --- | --- | --- | --- |
 | `services/scheduler/scheduler.h` | Services | 现有 | 自研 | 裸机协作调度 |
 | `services/scheduler/scheduler.c` | Services | 现有 | 自研 | 裸机协作调度 |
-| `services/frame/frame.h` | Services | 无 | 建立骨架 | 帧边界和处理状态 |
-| `services/frame/frame.c` | Services | 无 | 建立骨架 | 帧边界和处理状态 |
-| `services/communication/communication.h` | Services | 无 | 建立骨架 | 通信组合和错误边界 |
-| `services/communication/communication.c` | Services | 无 | 建立骨架 | 通信组合和错误边界 |
-| `services/error/error.h` | Services | 无 | 自研 | 最小错误模型 |
-| `services/error/error.c` | Services | 无 | 自研 | 最小错误模型 |
-| `services/diagnostic/diagnostic.h` | Services | 无 | 自研 | 诊断快照和 Telemetry |
-| `services/diagnostic/diagnostic.c` | Services | 无 | 自研 | 诊断快照和 Telemetry |
-| `services/parameter/parameter.h` | Services | 无 | 自研 | 静态参数注册表 |
-| `services/parameter/parameter.c` | Services | 无 | 自研 | 静态参数注册表 |
-| `services/menu/menu.h` | Services | 无 | 自研 | 菜单状态机 |
-| `services/menu/menu.c` | Services | 无 | 自研 | 菜单状态机 |
-| `services/command/command.h` | Services | 无 | 自研 | 静态命令路由 |
-| `services/command/command.c` | Services | 无 | 自研 | 静态命令路由 |
+| `libraries/mizu_fifo/mizu_fifo.h` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
+| `libraries/mizu_fifo/mizu_fifo.c` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
+| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留并在 S5 复核 | 当前公共操作结果类型；状态服务方案在 S5 决定 |
 
-S1 的 scheduler 使用项目提供的静态配置表和运行槽数组，只在主循环调用；不处理 ISR、DMA 或 RTOS 事件。
+## 待建设主线
 
-`byte_stream` 不建立自研文件，优先采用成熟实现、平台能力或项目传输接口。
-
-## 成熟库能力
-
-以下能力进入储备范围，但不预建新的自研文件。具体第三方文件路径要等实际选型后确定：
-
-| 能力/目标路径 | 层级 | 状态 | 计划动作 | 说明 |
+| 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `third_party/<selected_crc_library>/...` | Middleware | 无 | 成熟库替换 | CRC |
-| `third_party/<selected_byte_order_library>/...` | Middleware | 无 | 成熟库替换 | 字节序和 IEEE754 编解码 |
-| `third_party/<selected_encoding_library>/...` | Middleware | 无 | 成熟库替换 | COBS 等编码 |
-| `third_party/<selected_logging_library>/...` | Middleware | 无 | 成熟库替换 | 日志 |
-| `third_party/<selected_pool_library>/...` | Middleware | 无 | 成熟库替换 | 对象池和固定队列 |
-| `third_party/<selected_storage_library>/...` | Middleware | 无 | 成熟库替换 | Repository 后端 |
-| `third_party/<selected_bluetooth_stack>/...` | Middleware | 无 | 成熟库替换 | 蓝牙协议栈 |
-| `third_party/<selected_display_library>/...` | Middleware | 无 | 成熟库替换 | 显示驱动、字库和渲染 |
+| `libraries/pid/pid.h` | Libraries | 无 | S3 自研 | 基础 PID |
+| `libraries/pid/pid.c` | Libraries | 无 | S3 自研 | 基础 PID |
+| `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 无 | S4 自研 | 串级 PID |
+| `libraries/cascaded_pid/cascaded_pid.c` | Libraries | 无 | S4 自研 | 串级 PID |
+| `services/mizu_status/mizu_status.h` | Services | 无 | S5 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |
+| `services/mizu_status/mizu_status.c` | Services | 无 | S5 自研 | 错误状态保存和查询实现 |
+| `services/parameter/parameter.h` | Services | 无 | S6 自研 | 回调绑定的参数注册和访问 |
+| `services/parameter/parameter.c` | Services | 无 | S6 自研 | 回调绑定的参数注册和访问 |
+| `services/command/command.h` | Services | 无 | S7 自研 | 稳定命令 ID 和静态命令路由 |
+| `services/command/command.c` | Services | 无 | S7 自研 | 稳定命令 ID 和静态命令路由 |
+| `services/menu/menu.h` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
+| `services/menu/menu.c` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
 
-FreeRTOS 的 queue、notification、event group、mutex 和 semaphore 直接使用项目锁定版本的内核文件，不在本仓库预建第三方副本。
+`mizu_status` 当前头文件中的结果类型与未来 Services 状态服务的最终依赖关系，在 S5 阶段性 Plan 中解决；不得形成 Libraries 依赖 Services 的反向依赖。
 
-## 按需契约文件
+## 按需能力
 
-| 目标文件 | 层级 | 状态 | 计划动作 |
-| --- | --- | --- | --- |
-| `adapters/freertos/freertos_contract.h` | Middleware | 无 | 按需创建 |
-| `adapters/bluetooth/bluetooth_contract.h` | Middleware | 无 | 按需创建 |
-| `adapters/display/display_contract.h` | Middleware | 无 | 按需创建 |
+以下内容不预建仓库文件，真实项目出现稳定重复需求后再单独开启阶段：
 
-## 排除和历史资产
+- 项目帧协议、通信组合、UART/DMA/蓝牙适配；
+- FreeRTOS、蓝牙、显示、日志和持久化适配；
+- 参数持久化和项目专属状态展示；
+- 一阶滤波、滑动平均、迟滞、死区、速率限制等小型算法；
+- 固定队列、对象池、快照缓冲等尚无明确主线使用者的数据结构。
 
-以下路径不进入新清单：
+CRC、字节序、IEEE754、COBS 等编码能力优先使用成熟库或项目现成实现，不预建新的自研包装文件。
 
-- `waiter`、`queue_port`、`event_group`、`count_notification`、`mutex_port`；
-- 具体 UART/DMA、蓝牙芯片、OLED/LCD、Flash/NVM 和 FreeRTOS 实现；
-- 项目 Application、Domain、BSP、Drivers 和具体产品页面。
+## 归档说明
 
-旧说明和旧阶段记录已归档到 `docs/archive/`；历史生产源码是否清理，须另行执行维护动作。
+不属于上述主线或按需能力边界的旧生产源码统一位于 `archive/legacy_src/`，不参与主构建、主线测试和静态检查。旧组件说明、阶段计划和资产登记位于 `docs/archive/`；历史代码仍可从 Git 历史恢复。
+
+归档类别及职责：
+
+- `time_port`：时间来源和休眠端口；
+- `critical_section`：临界区进入/退出端口；
+- `numeric`、`tick32`：数值检查、限幅和 tick 回绕计算；
+- `foundation_status`：旧公共状态结果类型；
+- `snapshot_buffer`、`fixed_queue`、`object_pool`：旧快照、固定队列和固定对象分配；
+- 一阶滤波、滑动平均、迟滞、死区、速率限制：旧小型算法；
+- 旧 PID 和串级 PID：S3/S4 重写前的历史实现；
+- CRC、字节序、IEEE754、COBS：旧自研编码和校验；
+- `waiter`、`queue_port`、`event_group`、`count_notification`、`mutex_port`：旧并发服务。
+
+具体 BSP、Driver、Application、Domain、产品协议和产品页面不进入本仓库主线清单。

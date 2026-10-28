@@ -1,8 +1,1 @@
 add_subdirectory(scheduler)
-add_subdirectory(time_port)
-add_subdirectory(critical_section)
-add_subdirectory(queue_port)
-add_subdirectory(event_group)
-add_subdirectory(count_notification)
-add_subdirectory(mutex_port)
-add_subdirectory(waiter)
