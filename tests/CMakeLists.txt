@@ -15,6 +15,11 @@ target_link_libraries(test_mizu_fifo PRIVATE mizu_fifo embeddedlib::project_opti
 target_include_directories(test_mizu_fifo PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME mizu_fifo.unit COMMAND test_mizu_fifo)
 
+add_executable(test_pid unit/test_pid.c)
+target_link_libraries(test_pid PRIVATE pid embeddedlib::project_options)
+target_include_directories(test_pid PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME pid.unit COMMAND test_pid)
+
 if(EMBEDDEDLIB_ENABLE_SANITIZERS)
     add_executable(embeddedlib_sanitizer_probe tooling/sanitizer_probe.c)
     target_link_libraries(embeddedlib_sanitizer_probe PRIVATE embeddedlib::project_options)

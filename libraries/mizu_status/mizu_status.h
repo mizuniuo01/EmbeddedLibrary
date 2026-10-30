@@ -12,7 +12,9 @@ typedef enum {
     MIZU_STATUS_OUT_OF_RANGE,       /* 索引、时间或数值超出支持范围。 */
     MIZU_STATUS_INTERNAL_ERROR,     /* 组件内部不变量被破坏。 */
     MIZU_STATUS_FULL,               /* 容器没有足够空间完成写入。 */
-    MIZU_STATUS_EMPTY               /* 容器没有足够数据完成读取。 */
+    MIZU_STATUS_EMPTY,              /* 容器没有足够数据完成读取。 */
+    MIZU_STATUS_INVALID_DATA,       /* 输入数据或数值不满足组件约束。 */
+    MIZU_STATUS_OVERFLOW             /* 计算或容量超出支持范围。 */
 } mizu_status_t;
 
 #endif /* MIZU_STATUS_H */

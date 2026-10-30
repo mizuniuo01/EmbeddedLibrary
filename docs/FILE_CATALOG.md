@@ -13,13 +13,13 @@
 | `libraries/mizu_fifo/mizu_fifo.h` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
 | `libraries/mizu_fifo/mizu_fifo.c` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
 | `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留并在 S5 复核 | 当前公共操作结果类型；状态服务方案在 S5 决定 |
+| `libraries/pid/pid.h` | Libraries | 现有 | 自研 | 单精度基础 PID |
+| `libraries/pid/pid.c` | Libraries | 现有 | 自研 | 单精度基础 PID |
 
 ## 待建设主线
 
 | 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `libraries/pid/pid.h` | Libraries | 无 | S3 自研 | 基础 PID |
-| `libraries/pid/pid.c` | Libraries | 无 | S3 自研 | 基础 PID |
 | `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 无 | S4 自研 | 串级 PID |
 | `libraries/cascaded_pid/cascaded_pid.c` | Libraries | 无 | S4 自研 | 串级 PID |
 | `services/mizu_status/mizu_status.h` | Services | 无 | S5 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |

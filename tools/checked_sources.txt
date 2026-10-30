@@ -1,7 +1,10 @@
 libraries/mizu_fifo/mizu_fifo.c
 libraries/mizu_fifo/mizu_fifo.h
 libraries/mizu_status/mizu_status.h
+libraries/pid/pid.c
+libraries/pid/pid.h
 services/scheduler/scheduler.c
 services/scheduler/scheduler.h
 tests/unit/test_mizu_fifo.c
+tests/unit/test_pid.c
 tests/unit/test_scheduler.c
