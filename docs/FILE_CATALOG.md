@@ -12,7 +12,7 @@
 | `services/scheduler/scheduler.c` | Services | 现有 | 自研 | 裸机协作调度 |
 | `libraries/mizu_fifo/mizu_fifo.h` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
 | `libraries/mizu_fifo/mizu_fifo.c` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
-| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留并在 S5 复核 | 当前公共操作结果类型；状态服务方案在 S5 决定 |
+| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留并在 S7 复核 | 当前公共操作结果类型；状态服务方案在 S7 决定 |
 | `libraries/pid/pid.h` | Libraries | 现有 | 自研 | 单精度基础 PID |
 | `libraries/pid/pid.c` | Libraries | 现有 | 自研 | 单精度基础 PID |
 | `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 现有 | 自研 | 固定两级串级 PID |
@@ -22,16 +22,16 @@
 
 | 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `services/mizu_status/mizu_status.h` | Services | 无 | S5 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |
-| `services/mizu_status/mizu_status.c` | Services | 无 | S5 自研 | 错误状态保存和查询实现 |
-| `services/parameter/parameter.h` | Services | 无 | S6 自研 | 回调绑定的参数注册和访问 |
-| `services/parameter/parameter.c` | Services | 无 | S6 自研 | 回调绑定的参数注册和访问 |
-| `services/command/command.h` | Services | 无 | S7 自研 | 稳定命令 ID 和静态命令路由 |
-| `services/command/command.c` | Services | 无 | S7 自研 | 稳定命令 ID 和静态命令路由 |
+| `services/parameter/parameter.h` | Services | 无 | S5 自研 | 回调绑定的参数注册和访问 |
+| `services/parameter/parameter.c` | Services | 无 | S5 自研 | 回调绑定的参数注册和访问 |
+| `services/command/command.h` | Services | 无 | S6 自研 | 稳定命令 ID 和静态命令路由 |
+| `services/command/command.c` | Services | 无 | S6 自研 | 稳定命令 ID 和静态命令路由 |
+| `services/mizu_status/mizu_status.h` | Services | 无 | S7 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |
+| `services/mizu_status/mizu_status.c` | Services | 无 | S7 自研 | 错误状态保存和查询实现 |
 | `services/menu/menu.h` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
 | `services/menu/menu.c` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
 
-`mizu_status` 当前头文件中的结果类型与未来 Services 状态服务的最终依赖关系，在 S5 阶段性 Plan 中解决；不得形成 Libraries 依赖 Services 的反向依赖。
+`mizu_status` 当前头文件中的结果类型与未来 Services 状态服务的最终依赖关系，在 S7 阶段性 Plan 中解决；不得形成 Libraries 依赖 Services 的反向依赖。
 
 ## 按需能力
 
