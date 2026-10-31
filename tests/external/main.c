@@ -7,6 +7,30 @@
 #include "mizu_fifo.h"
 #include "cascaded_pid.h"
 #include "pid.h"
+#include "parameter.h"
+
+static mizu_status_t external_parameter_get(void *context, mizu_parameter_value_t *value)
+{
+    float *stored = context;
+
+    if ((stored == NULL) || (value == NULL)) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    value->type = MIZU_PARAMETER_VALUE_FLOAT;
+    value->data.float_value = *stored;
+    return MIZU_STATUS_OK;
+}
+
+static mizu_status_t external_parameter_set(void *context, const mizu_parameter_value_t *value)
+{
+    float *stored = context;
+
+    if ((stored == NULL) || (value == NULL) || (value->type != MIZU_PARAMETER_VALUE_FLOAT)) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    *stored = value->data.float_value;
+    return MIZU_STATUS_OK;
+}
 
 /**
  * @brief 执行当前主线组件的最小外部接入用例。
@@ -33,6 +57,23 @@ int main(void)
     };
     float pid_output = 0.0F;
     float cascaded_output = 0.0F;
+    float parameter_value = 1.0F;
+    mizu_parameter_service_t parameter_service = {0};
+    const mizu_parameter_descriptor_t parameter_descriptor = {
+        .id = 1U,
+        .name = "external",
+        .unit = "x",
+        .type = MIZU_PARAMETER_VALUE_FLOAT,
+        .minimum = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 0.0F},
+        .maximum = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 2.0F},
+        .step = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 0.5F},
+        .writable = true,
+        .get = external_parameter_get,
+        .set = external_parameter_set,
+        .context = &parameter_value,
+    };
+    const mizu_parameter_group_t parameter_group = {1U, "external", &parameter_descriptor, 1U};
+    const mizu_parameter_adjust_request_t adjust = {1U, 1};
     const mizu_cascaded_pid_config_t cascaded_config = {
         .outer_config = pid_config,
         .inner_config = pid_config,
@@ -59,6 +100,11 @@ int main(void)
         (mizu_cascaded_pid_calculate(&cascaded_pid, &cascaded_input, &cascaded_output) !=
          MIZU_STATUS_OK) ||
         (cascaded_output != 1.0F)) {
+        return 1;
+    }
+    if ((mizu_parameter_service_init(&parameter_service, &parameter_group, 1U) != MIZU_STATUS_OK) ||
+        (mizu_parameter_service_adjust_by_id(&parameter_service, &adjust) != MIZU_STATUS_OK) ||
+        (parameter_value != 1.5F)) {
         return 1;
     }
     return 0;

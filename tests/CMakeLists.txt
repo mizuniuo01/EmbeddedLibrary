@@ -25,6 +25,11 @@ target_link_libraries(test_cascaded_pid PRIVATE cascaded_pid embeddedlib::projec
 target_include_directories(test_cascaded_pid PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME cascaded_pid.unit COMMAND test_cascaded_pid)
 
+add_executable(test_parameter unit/test_parameter.c)
+target_link_libraries(test_parameter PRIVATE parameter embeddedlib::project_options)
+target_include_directories(test_parameter PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME parameter.unit COMMAND test_parameter)
+
 if(EMBEDDEDLIB_ENABLE_SANITIZERS)
     add_executable(embeddedlib_sanitizer_probe tooling/sanitizer_probe.c)
     target_link_libraries(embeddedlib_sanitizer_probe PRIVATE embeddedlib::project_options)

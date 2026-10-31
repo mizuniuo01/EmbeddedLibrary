@@ -5,6 +5,8 @@ libraries/pid/pid.c
 libraries/pid/pid.h
 libraries/cascaded_pid/cascaded_pid.c
 libraries/cascaded_pid/cascaded_pid.h
+services/parameter/parameter.c
+services/parameter/parameter.h
 services/scheduler/scheduler.c
 services/scheduler/scheduler.h
 tests/unit/test_mizu_fifo.c
