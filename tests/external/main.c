@@ -5,10 +5,11 @@
 #include <stdint.h>
 
 #include "mizu_fifo.h"
+#include "cascaded_pid.h"
 #include "pid.h"
 
 /**
- * @brief 执行外部接入的最小 FIFO 用例。
+ * @brief 执行当前主线组件的最小外部接入用例。
  * @return 成功时返回 0，否则返回 1。
  */
 int main(void)
@@ -18,6 +19,7 @@ int main(void)
     uint8_t output = 0U;
     mizu_fifo_t fifo = {0};
     mizu_pid_t pid = {0};
+    mizu_cascaded_pid_t cascaded_pid = {0};
     const mizu_pid_config_t pid_config = {
         .kp = 1.0F,
         .ki = 0.0F,
@@ -30,6 +32,12 @@ int main(void)
         .anti_windup = MIZU_PID_ANTI_WINDUP_CONDITIONAL,
     };
     float pid_output = 0.0F;
+    float cascaded_output = 0.0F;
+    const mizu_cascaded_pid_config_t cascaded_config = {
+        .outer_config = pid_config,
+        .inner_config = pid_config,
+    };
+    const mizu_cascaded_pid_input_t cascaded_input = {1.0F, 0.0F, 0.0F, 1.0F};
     if (mizu_fifo_init(&fifo, storage, sizeof(storage)) != MIZU_STATUS_OK) {
         return 1;
     }
@@ -45,6 +53,12 @@ int main(void)
     if ((mizu_pid_init(&pid, &pid_config) != MIZU_STATUS_OK) ||
         (mizu_pid_calculate(&pid, 1.0F, 0.0F, 1.0F, &pid_output) != MIZU_STATUS_OK) ||
         (pid_output != 1.0F)) {
+        return 1;
+    }
+    if ((mizu_cascaded_pid_init(&cascaded_pid, &cascaded_config) != MIZU_STATUS_OK) ||
+        (mizu_cascaded_pid_calculate(&cascaded_pid, &cascaded_input, &cascaded_output) !=
+         MIZU_STATUS_OK) ||
+        (cascaded_output != 1.0F)) {
         return 1;
     }
     return 0;

@@ -3,8 +3,11 @@ libraries/mizu_fifo/mizu_fifo.h
 libraries/mizu_status/mizu_status.h
 libraries/pid/pid.c
 libraries/pid/pid.h
+libraries/cascaded_pid/cascaded_pid.c
+libraries/cascaded_pid/cascaded_pid.h
 services/scheduler/scheduler.c
 services/scheduler/scheduler.h
 tests/unit/test_mizu_fifo.c
 tests/unit/test_pid.c
+tests/unit/test_cascaded_pid.c
 tests/unit/test_scheduler.c

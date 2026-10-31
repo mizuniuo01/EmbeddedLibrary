@@ -15,13 +15,13 @@
 | `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留并在 S5 复核 | 当前公共操作结果类型；状态服务方案在 S5 决定 |
 | `libraries/pid/pid.h` | Libraries | 现有 | 自研 | 单精度基础 PID |
 | `libraries/pid/pid.c` | Libraries | 现有 | 自研 | 单精度基础 PID |
+| `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 现有 | 自研 | 固定两级串级 PID |
+| `libraries/cascaded_pid/cascaded_pid.c` | Libraries | 现有 | 自研 | 固定两级串级 PID |
 
 ## 待建设主线
 
 | 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 无 | S4 自研 | 串级 PID |
-| `libraries/cascaded_pid/cascaded_pid.c` | Libraries | 无 | S4 自研 | 串级 PID |
 | `services/mizu_status/mizu_status.h` | Services | 无 | S5 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |
 | `services/mizu_status/mizu_status.c` | Services | 无 | S5 自研 | 错误状态保存和查询实现 |
 | `services/parameter/parameter.h` | Services | 无 | S6 自研 | 回调绑定的参数注册和访问 |
