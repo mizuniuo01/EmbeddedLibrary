@@ -6,6 +6,7 @@
 
 #include "mizu_fifo.h"
 #include "cascaded_pid.h"
+#include "command.h"
 #include "pid.h"
 #include "parameter.h"
 
@@ -29,6 +30,17 @@ static mizu_status_t external_parameter_set(void *context, const mizu_parameter_
         return MIZU_STATUS_INVALID_ARGUMENT;
     }
     *stored = value->data.float_value;
+    return MIZU_STATUS_OK;
+}
+
+static mizu_status_t external_command_handler(void *context)
+{
+    int *calls = context;
+
+    if (calls == NULL) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    (*calls)++;
     return MIZU_STATUS_OK;
 }
 
@@ -58,7 +70,9 @@ int main(void)
     float pid_output = 0.0F;
     float cascaded_output = 0.0F;
     float parameter_value = 1.0F;
+    int command_calls = 0;
     mizu_parameter_service_t parameter_service = {0};
+    mizu_command_service_t command_service = {0};
     const mizu_parameter_descriptor_t parameter_descriptor = {
         .id = 1U,
         .name = "external",
@@ -74,6 +88,13 @@ int main(void)
     };
     const mizu_parameter_group_t parameter_group = {1U, "external", &parameter_descriptor, 1U};
     const mizu_parameter_adjust_request_t adjust = {1U, 1};
+    const mizu_command_descriptor_t command_descriptor = {
+        .id = 1U,
+        .name = "external_action",
+        .handler = external_command_handler,
+        .context = &command_calls,
+    };
+    const mizu_command_group_t command_group = {1U, "external", &command_descriptor, 1U};
     const mizu_cascaded_pid_config_t cascaded_config = {
         .outer_config = pid_config,
         .inner_config = pid_config,
@@ -105,6 +126,11 @@ int main(void)
     if ((mizu_parameter_service_init(&parameter_service, &parameter_group, 1U) != MIZU_STATUS_OK) ||
         (mizu_parameter_service_adjust_by_id(&parameter_service, &adjust) != MIZU_STATUS_OK) ||
         (parameter_value != 1.5F)) {
+        return 1;
+    }
+    if ((mizu_command_service_init(&command_service, &command_group, 1U) != MIZU_STATUS_OK) ||
+        (mizu_command_service_execute(&command_service, 1U) != MIZU_STATUS_OK) ||
+        (command_calls != 1)) {
         return 1;
     }
     return 0;

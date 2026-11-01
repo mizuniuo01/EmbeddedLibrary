@@ -19,13 +19,13 @@
 | `libraries/cascaded_pid/cascaded_pid.c` | Libraries | 现有 | 自研 | 固定两级串级 PID |
 | `services/parameter/parameter.h` | Services | 现有 | 自研 | 静态参数注册和 getter/setter 路由 |
 | `services/parameter/parameter.c` | Services | 现有 | 自研 | 静态参数注册和 getter/setter 路由 |
+| `services/command/command.h` | Services | 现有 | 自研 | 静态命令注册和同步动作路由 |
+| `services/command/command.c` | Services | 现有 | 自研 | 静态命令注册和同步动作路由 |
 
 ## 待建设主线
 
 | 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `services/command/command.h` | Services | 无 | S6 自研 | 稳定命令 ID 和静态命令路由 |
-| `services/command/command.c` | Services | 无 | S6 自研 | 稳定命令 ID 和静态命令路由 |
 | `services/mizu_status/mizu_status.h` | Services | 无 | S7 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |
 | `services/mizu_status/mizu_status.c` | Services | 无 | S7 自研 | 错误状态保存和查询实现 |
 | `services/menu/menu.h` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
