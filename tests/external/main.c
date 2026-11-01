@@ -7,6 +7,7 @@
 #include "mizu_fifo.h"
 #include "cascaded_pid.h"
 #include "command.h"
+#include "mizu_status_service.h"
 #include "pid.h"
 #include "parameter.h"
 
@@ -71,6 +72,8 @@ int main(void)
     float cascaded_output = 0.0F;
     float parameter_value = 1.0F;
     int command_calls = 0;
+    mizu_status_service_t status_service = {0};
+    mizu_status_record_t status_records[1] = {0};
     mizu_parameter_service_t parameter_service = {0};
     mizu_command_service_t command_service = {0};
     const mizu_parameter_descriptor_t parameter_descriptor = {
@@ -131,6 +134,13 @@ int main(void)
     if ((mizu_command_service_init(&command_service, &command_group, 1U) != MIZU_STATUS_OK) ||
         (mizu_command_service_execute(&command_service, 1U) != MIZU_STATUS_OK) ||
         (command_calls != 1)) {
+        return 1;
+    }
+    if ((mizu_status_service_init(&status_service, status_records, 1U) !=
+         MIZU_STATUS_OK) ||
+        (mizu_status_service_report(&status_service, 1U, MIZU_STATUS_INTERNAL_ERROR) !=
+         MIZU_STATUS_OK) ||
+        (mizu_status_service_count(&status_service, &(size_t){0U}) != MIZU_STATUS_OK)) {
         return 1;
     }
     return 0;

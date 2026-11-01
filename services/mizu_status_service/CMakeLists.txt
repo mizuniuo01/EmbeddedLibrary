@@ -1,0 +1,3 @@
+add_library(mizu_status_service STATIC mizu_status_service.c)
+target_include_directories(mizu_status_service PUBLIC .)
+target_link_libraries(mizu_status_service PUBLIC mizu_status PRIVATE embeddedlib::project_options)

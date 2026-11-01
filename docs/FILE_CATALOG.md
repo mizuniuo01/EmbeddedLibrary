@@ -21,13 +21,13 @@
 | `services/parameter/parameter.c` | Services | 现有 | 自研 | 静态参数注册和 getter/setter 路由 |
 | `services/command/command.h` | Services | 现有 | 自研 | 静态命令注册和同步动作路由 |
 | `services/command/command.c` | Services | 现有 | 自研 | 静态命令注册和同步动作路由 |
+| `services/mizu_status_service/mizu_status_service.h` | Services | 现有 | 自研 | 显式严重错误状态保存和查询 |
+| `services/mizu_status_service/mizu_status_service.c` | Services | 现有 | 自研 | 显式严重错误状态保存和查询 |
 
 ## 待建设主线
 
 | 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `services/mizu_status/mizu_status.h` | Services | 无 | S7 自研 | 错误状态类型、保存和查询入口，具体方案阶段内决定 |
-| `services/mizu_status/mizu_status.c` | Services | 无 | S7 自研 | 错误状态保存和查询实现 |
 | `services/menu/menu.h` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
 | `services/menu/menu.c` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
 

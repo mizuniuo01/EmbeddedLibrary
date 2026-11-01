@@ -35,6 +35,11 @@ target_link_libraries(test_command PRIVATE command embeddedlib::project_options)
 target_include_directories(test_command PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
 add_test(NAME command.unit COMMAND test_command)
 
+add_executable(test_mizu_status_service unit/test_mizu_status_service.c)
+target_link_libraries(test_mizu_status_service PRIVATE mizu_status_service embeddedlib::project_options)
+target_include_directories(test_mizu_status_service PRIVATE "${EMBEDDEDLIB_TEST_SUPPORT_INCLUDE_DIR}")
+add_test(NAME mizu_status_service.unit COMMAND test_mizu_status_service)
+
 if(EMBEDDEDLIB_ENABLE_SANITIZERS)
     add_executable(embeddedlib_sanitizer_probe tooling/sanitizer_probe.c)
     target_link_libraries(embeddedlib_sanitizer_probe PRIVATE embeddedlib::project_options)

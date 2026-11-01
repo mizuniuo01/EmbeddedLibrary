@@ -9,9 +9,12 @@ services/parameter/parameter.c
 services/parameter/parameter.h
 services/command/command.c
 services/command/command.h
+services/mizu_status_service/mizu_status_service.c
+services/mizu_status_service/mizu_status_service.h
 services/scheduler/scheduler.c
 services/scheduler/scheduler.h
 tests/unit/test_mizu_fifo.c
 tests/unit/test_pid.c
 tests/unit/test_cascaded_pid.c
 tests/unit/test_scheduler.c
+tests/unit/test_mizu_status_service.c
