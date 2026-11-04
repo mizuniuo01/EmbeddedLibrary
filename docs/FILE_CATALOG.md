@@ -12,7 +12,7 @@
 | `services/scheduler/scheduler.c` | Services | 现有 | 自研 | 裸机协作调度 |
 | `libraries/mizu_fifo/mizu_fifo.h` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
 | `libraries/mizu_fifo/mizu_fifo.c` | Libraries | 现有 | 自研 | 单生产者/单消费者通信字节暂存 |
-| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留并在 S7 复核 | 当前公共操作结果类型；状态服务方案在 S7 决定 |
+| `libraries/mizu_status/mizu_status.h` | Libraries | 现有 | 保留 | 当前公共操作结果类型；S7 已确定由 Services 状态服务保存业务状态 |
 | `libraries/pid/pid.h` | Libraries | 现有 | 自研 | 单精度基础 PID |
 | `libraries/pid/pid.c` | Libraries | 现有 | 自研 | 单精度基础 PID |
 | `libraries/cascaded_pid/cascaded_pid.h` | Libraries | 现有 | 自研 | 固定两级串级 PID |
@@ -23,15 +23,15 @@
 | `services/command/command.c` | Services | 现有 | 自研 | 静态命令注册和同步动作路由 |
 | `services/mizu_status_service/mizu_status_service.h` | Services | 现有 | 自研 | 显式严重错误状态保存和查询 |
 | `services/mizu_status_service/mizu_status_service.c` | Services | 现有 | 自研 | 显式严重错误状态保存和查询 |
+| `services/menu/menu.h` | Services | 现有 | S8 已完成 | 菜单公共协议、静态描述、事件和语义视图契约 |
+| `services/menu/menu.c` | Services | 现有 | S8 已完成 | 菜单初始化、参数/命令交互、展示页导航和视图查询 |
 
 ## 待建设主线
 
 | 目标文件 | 层级 | 状态 | 阶段 | 职责 |
 | --- | --- | --- | --- | --- |
-| `services/menu/menu.h` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
-| `services/menu/menu.c` | Services | 无 | S8 自研 | 硬件无关调试菜单 |
 
-`mizu_status` 当前头文件中的结果类型与未来 Services 状态服务的最终依赖关系，在 S7 阶段性 Plan 中解决；不得形成 Libraries 依赖 Services 的反向依赖。
+`mizu_status` 只提供公共操作结果类型；Services 状态服务保存业务状态，保持 Libraries 不依赖 Services 的方向。
 
 ## 按需能力
 

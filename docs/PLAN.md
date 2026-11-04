@@ -1,6 +1,6 @@
 # EmbeddedLibrary 总体建设计划
 
-> 计划状态：S2 实现已完成；等待用户手动开启 S3
+> 计划状态：S8 实现已完成；当前进行 S8 收尾整改
 >
 > 规范入口：`docs/ENGINEERING_PROFILE.yaml`、`docs/ARCHITECTURE_STANDARD.md`、
 > `docs/CODING_STYLE.md`、`docs/REPOSITORY_WORKFLOW.md`
@@ -92,9 +92,9 @@
 
 保存上层显式上报的少量当前错误状态，提供来源查询和显式清除；不自动接收所有组件状态，不执行错误处理，不提供并发同步。基础 `libraries/mizu_status/mizu_status.h` 仍只提供公共结果类型。
 
-### S8：`menu.c/.h` — 未开始
+### S8：`menu.c/.h` — 已完成
 
-硬件无关菜单导航、编辑、确认、取消和输入事件状态机；通过 parameter 和 command 使用项目能力。
+硬件无关菜单导航、编辑、确认、取消、命令执行、展示页导航和语义视图查询；通过 parameter 和 command 使用项目能力。S8 四批实现已完成。
 
 ### 按需阶段 — 不进入固定路线
 

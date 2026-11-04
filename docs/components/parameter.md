@@ -14,15 +14,22 @@
 ## 参数模型
 
 - 当前支持 `float`、`int32`、`uint32` 和 `bool`。
-- 每个参数拥有稳定 ID、名称、单位、类型、范围、步长和读写权限。
+- 每个参数拥有稳定 ID、名称、单位、类型、范围、默认步长、显示小数位数和读写权限。
 - 参数按静态分组组织；分组只负责名称、稳定 ID 和枚举顺序，不表达业务权限或模式。
 - 菜单通过分组视图获取元数据，通过参数稳定 ID 读写和调整。
-- float 显示格式不属于参数服务，由菜单或项目格式化层决定。
+- `decimals` 规定 float 的显示小数位数和运行期最小步长，范围为 0～4；整数和 bool 必须为 0。
+- 文本格式化和编码仍由菜单输出适配器负责，parameter 只提供强类型值和精度元数据。
 
 ## 调整和错误
 
 - 数值参数按步长调整并钳制到范围；bool 的正步数设为 true，负步数设为 false，零步数不改变。
 - 初始化会读取并校验每个参数当前值。
 - getter/setter 返回的状态原样向上传播。
+- `get_descriptor_by_id()` 返回注册表中的只读借用描述符。
+- `adjust_value()` 和 `scale_step()` 是无状态纯变换：不读取或提交业务参数，也不拥有菜单草稿。
+- `adjust_value()` 的类型或步长组合错误返回 `MIZU_STATUS_INVALID_ARGUMENT`，当前值越界返回
+  `MIZU_STATUS_OUT_OF_RANGE`；当前值或步长为 NaN/Inf 返回 `MIZU_STATUS_INVALID_DATA`，失败时输出不变。
+- `scale_step()` 只接受与描述符类型一致且处于合法步长范围内的运行期步长；浮点步长还必须有限，
+  不合法输入被拒绝且不修改输出。
 - 参数服务自身使用 `MIZU_STATUS_INVALID_ARGUMENT`、`MIZU_STATUS_INVALID_DATA`、
   `MIZU_STATUS_INVALID_STATE`、`MIZU_STATUS_NOT_INITIALIZED` 和 `MIZU_STATUS_OUT_OF_RANGE`。

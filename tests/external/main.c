@@ -7,6 +7,7 @@
 #include "mizu_fifo.h"
 #include "cascaded_pid.h"
 #include "command.h"
+#include "menu.h"
 #include "mizu_status_service.h"
 #include "pid.h"
 #include "parameter.h"
@@ -76,6 +77,7 @@ int main(void)
     mizu_status_record_t status_records[1] = {0};
     mizu_parameter_service_t parameter_service = {0};
     mizu_command_service_t command_service = {0};
+    mizu_menu_service_t menu = {0};
     const mizu_parameter_descriptor_t parameter_descriptor = {
         .id = 1U,
         .name = "external",
@@ -84,6 +86,7 @@ int main(void)
         .minimum = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 0.0F},
         .maximum = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 2.0F},
         .step = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 0.5F},
+        .decimals = 1U,
         .writable = true,
         .get = external_parameter_get,
         .set = external_parameter_set,
@@ -98,6 +101,21 @@ int main(void)
         .context = &command_calls,
     };
     const mizu_command_group_t command_group = {1U, "external", &command_descriptor, 1U};
+    const mizu_menu_item_t menu_item = {
+        .kind = MIZU_MENU_ITEM_PARAMETER,
+        .target.parameter_id = 1U,
+    };
+    const mizu_menu_group_t menu_group = {
+        .id = 1U,
+        .title = {"External", 8U},
+        .items = &menu_item,
+        .item_count = 1U,
+    };
+    const mizu_menu_root_item_t menu_root = {
+        .kind = MIZU_MENU_ROOT_GROUP,
+        .target.group = &menu_group,
+    };
+    mizu_parameter_value_t menu_step_cache[1] = {0};
     const mizu_cascaded_pid_config_t cascaded_config = {
         .outer_config = pid_config,
         .inner_config = pid_config,
@@ -136,8 +154,19 @@ int main(void)
         (command_calls != 1)) {
         return 1;
     }
-    if ((mizu_status_service_init(&status_service, status_records, 1U) !=
-         MIZU_STATUS_OK) ||
+    if (mizu_menu_init(&menu, &(mizu_menu_config_t){
+                                  .root_title = {"Debug", 5U},
+                                  .root_items = &menu_root,
+                                  .root_item_count = 1U,
+                                  .parameters = &parameter_service,
+                                  .commands = &command_service,
+                                  .step_cache = menu_step_cache,
+                                  .step_cache_count = 1U,
+                                  .feedback_duration_ms = 1000U,
+                              }) != MIZU_STATUS_OK) {
+        return 1;
+    }
+    if ((mizu_status_service_init(&status_service, status_records, 1U) != MIZU_STATUS_OK) ||
         (mizu_status_service_report(&status_service, 1U, MIZU_STATUS_INTERNAL_ERROR) !=
          MIZU_STATUS_OK) ||
         (mizu_status_service_count(&status_service, &(size_t){0U}) != MIZU_STATUS_OK)) {

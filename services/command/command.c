@@ -150,6 +150,27 @@ mizu_status_t mizu_command_service_get_group(const mizu_command_service_t *servi
     return MIZU_STATUS_OK;
 }
 
+mizu_status_t
+mizu_command_service_get_descriptor_by_id(const mizu_command_service_t *service,
+                                          mizu_command_id_t command_id,
+                                          const mizu_command_descriptor_t **descriptor)
+{
+    const mizu_command_descriptor_t *found;
+
+    if ((service == NULL) || (descriptor == NULL)) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    if (!service->initialized) {
+        return MIZU_STATUS_NOT_INITIALIZED;
+    }
+    found = mizu_command_find(service, command_id);
+    if (found == NULL) {
+        return MIZU_STATUS_OUT_OF_RANGE;
+    }
+    *descriptor = found;
+    return MIZU_STATUS_OK;
+}
+
 mizu_status_t mizu_command_service_execute(mizu_command_service_t *service,
                                            mizu_command_id_t command_id)
 {

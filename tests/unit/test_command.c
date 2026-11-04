@@ -109,6 +109,12 @@ static int test_registration_errors(void)
                 MIZU_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT(mizu_command_service_get_group(&service, 1U, &(const mizu_command_group_t *){0}) ==
                 MIZU_STATUS_OUT_OF_RANGE);
+    TEST_ASSERT(mizu_command_service_get_descriptor_by_id(&service, 1U,
+                                                          &(const mizu_command_descriptor_t *){
+                                                              0}) == MIZU_STATUS_OK);
+    TEST_ASSERT(mizu_command_service_get_descriptor_by_id(&service, 99U,
+                                                          &(const mizu_command_descriptor_t *){
+                                                              0}) == MIZU_STATUS_OUT_OF_RANGE);
     TEST_ASSERT(mizu_command_service_get_snapshot(&service, NULL) == MIZU_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT(mizu_command_service_execute(NULL, 1U) == MIZU_STATUS_INVALID_ARGUMENT);
     return 0;

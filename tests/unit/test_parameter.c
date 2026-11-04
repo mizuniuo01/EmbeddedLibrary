@@ -17,7 +17,7 @@ typedef struct {
 
 static mizu_status_t test_get(void *context, mizu_parameter_value_t *value)
 {
-    test_parameter_context_t *state = context;
+    const test_parameter_context_t *state = context;
 
     if ((state == NULL) || (value == NULL)) {
         return MIZU_STATUS_INVALID_ARGUMENT;
@@ -46,7 +46,7 @@ static mizu_status_t test_set(void *context, const mizu_parameter_value_t *value
 
 static mizu_status_t test_get_count(void *context, mizu_parameter_value_t *value)
 {
-    test_parameter_context_t *state = context;
+    const test_parameter_context_t *state = context;
 
     if ((state == NULL) || (value == NULL)) {
         return MIZU_STATUS_INVALID_ARGUMENT;
@@ -69,7 +69,7 @@ static mizu_status_t test_set_count(void *context, const mizu_parameter_value_t 
 
 static mizu_status_t test_get_bool(void *context, mizu_parameter_value_t *value)
 {
-    test_parameter_context_t *state = context;
+    const test_parameter_context_t *state = context;
 
     if ((state == NULL) || (value == NULL)) {
         return MIZU_STATUS_INVALID_ARGUMENT;
@@ -100,6 +100,7 @@ static mizu_parameter_descriptor_t test_descriptors(test_parameter_context_t *st
         .minimum = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = -5.0F},
         .maximum = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 5.0F},
         .step = {.type = MIZU_PARAMETER_VALUE_FLOAT, .data.float_value = 0.5F},
+        .decimals = 1U,
         .writable = true,
         .get = test_get,
         .set = test_set,
@@ -168,7 +169,7 @@ static int test_types_and_errors(void)
          .type = MIZU_PARAMETER_VALUE_BOOL,
          .minimum = {.type = MIZU_PARAMETER_VALUE_BOOL, .data.bool_value = false},
          .maximum = {.type = MIZU_PARAMETER_VALUE_BOOL, .data.bool_value = true},
-         .step = {.type = MIZU_PARAMETER_VALUE_BOOL, .data.bool_value = false},
+         .step = {.type = MIZU_PARAMETER_VALUE_BOOL, .data.bool_value = true},
          .writable = true,
          .get = test_get_bool,
          .set = test_set_bool,
@@ -222,10 +223,185 @@ static int test_registration_failure_and_callback_error(void)
     return 0;
 }
 
+static int test_descriptor_and_pure_transforms(void)
+{
+    test_parameter_context_t state = {.value = 1.0F};
+    mizu_parameter_descriptor_t descriptor = test_descriptors(&state);
+    const mizu_parameter_group_t group = {10U, "control", &descriptor, 1U};
+    mizu_parameter_service_t service = {0};
+    const mizu_parameter_descriptor_t *view;
+    const mizu_parameter_value_t step = {
+        MIZU_PARAMETER_VALUE_FLOAT,
+        {.float_value = 0.1F},
+    };
+    mizu_parameter_value_t value = {
+        MIZU_PARAMETER_VALUE_FLOAT,
+        {.float_value = 1.0F},
+    };
+    mizu_parameter_value_t result = {
+        MIZU_PARAMETER_VALUE_FLOAT,
+        {.float_value = 99.0F},
+    };
+
+    TEST_ASSERT(mizu_parameter_service_init(&service, &group, 1U) == MIZU_STATUS_OK);
+    TEST_ASSERT(mizu_parameter_service_get_descriptor_by_id(&service, 1U, &view) == MIZU_STATUS_OK);
+    TEST_ASSERT(view == &descriptor);
+    TEST_ASSERT(mizu_parameter_adjust_value(&descriptor, &value, &step, 5, &result) ==
+                MIZU_STATUS_OK);
+    TEST_ASSERT(fabsf(result.data.float_value - 1.5F) < 0.0001F);
+    TEST_ASSERT(mizu_parameter_adjust_value(&descriptor, &value, &step, INT32_MAX, &result) ==
+                MIZU_STATUS_OK);
+    TEST_ASSERT(result.data.float_value == descriptor.maximum.data.float_value);
+    TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &step, -1, &result) == MIZU_STATUS_OK);
+    TEST_ASSERT(fabsf(result.data.float_value - 0.1F) < 0.0001F);
+    TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &step, 1, &result) == MIZU_STATUS_OK);
+    TEST_ASSERT(fabsf(result.data.float_value - 1.0F) < 0.0001F);
+    TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &step, 0, &result) == MIZU_STATUS_OK);
+    TEST_ASSERT(fabsf(result.data.float_value - 0.1F) < 0.0001F);
+    TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &step, 2, &result) ==
+                MIZU_STATUS_INVALID_ARGUMENT);
+    {
+        const mizu_parameter_value_t too_small = {
+            MIZU_PARAMETER_VALUE_FLOAT,
+            {.float_value = 0.01F},
+        };
+        const mizu_parameter_value_t too_large = {
+            MIZU_PARAMETER_VALUE_FLOAT,
+            {.float_value = 20.0F},
+        };
+        const mizu_parameter_value_t not_a_number = {
+            MIZU_PARAMETER_VALUE_FLOAT,
+            {.float_value = NAN},
+        };
+        const mizu_parameter_value_t infinity = {
+            MIZU_PARAMETER_VALUE_FLOAT,
+            {.float_value = INFINITY},
+        };
+        const mizu_parameter_value_t invalid_value = {
+            MIZU_PARAMETER_VALUE_FLOAT,
+            {.float_value = NAN},
+        };
+
+        result = (mizu_parameter_value_t){
+            MIZU_PARAMETER_VALUE_FLOAT,
+            {.float_value = 77.0F},
+        };
+        TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &too_small, 0, &result) ==
+                    MIZU_STATUS_INVALID_ARGUMENT);
+        TEST_ASSERT(result.data.float_value == 77.0F);
+        TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &too_large, 0, &result) ==
+                    MIZU_STATUS_INVALID_ARGUMENT);
+        TEST_ASSERT(result.data.float_value == 77.0F);
+        TEST_ASSERT(mizu_parameter_scale_step(&descriptor, &not_a_number, 0, &result) ==
+                    MIZU_STATUS_INVALID_DATA);
+        TEST_ASSERT(result.data.float_value == 77.0F);
+        TEST_ASSERT(mizu_parameter_adjust_value(&descriptor, &invalid_value, &step, 1, &result) ==
+                    MIZU_STATUS_INVALID_DATA);
+        TEST_ASSERT(result.data.float_value == 77.0F);
+        TEST_ASSERT(mizu_parameter_adjust_value(&descriptor, &value, &infinity, 1, &result) ==
+                    MIZU_STATUS_INVALID_DATA);
+        TEST_ASSERT(result.data.float_value == 77.0F);
+    }
+    {
+        mizu_parameter_descriptor_t unsigned_descriptor = {
+            .id = 2U,
+            .name = "wide",
+            .unit = "",
+            .type = MIZU_PARAMETER_VALUE_UINT32,
+            .minimum = {.type = MIZU_PARAMETER_VALUE_UINT32, .data.uint32_value = 0U},
+            .maximum = {.type = MIZU_PARAMETER_VALUE_UINT32, .data.uint32_value = UINT32_MAX},
+            .step = {.type = MIZU_PARAMETER_VALUE_UINT32, .data.uint32_value = UINT32_MAX},
+            .decimals = 0U,
+            .writable = true,
+            .get = test_get_count,
+            .set = test_set_count,
+            .context = &state,
+        };
+        const mizu_parameter_value_t unsigned_step = {
+            MIZU_PARAMETER_VALUE_UINT32,
+            {.uint32_value = UINT32_MAX},
+        };
+        const mizu_parameter_value_t unsigned_value = {
+            MIZU_PARAMETER_VALUE_UINT32,
+            {.uint32_value = 1U},
+        };
+
+        TEST_ASSERT(mizu_parameter_adjust_value(&unsigned_descriptor, &unsigned_value,
+                                                &unsigned_step, INT32_MAX,
+                                                &result) == MIZU_STATUS_OK);
+        TEST_ASSERT(result.data.uint32_value == UINT32_MAX);
+        TEST_ASSERT(mizu_parameter_adjust_value(&unsigned_descriptor, &unsigned_value,
+                                                &unsigned_step, INT32_MIN,
+                                                &result) == MIZU_STATUS_OK);
+        TEST_ASSERT(result.data.uint32_value == 0U);
+    }
+    {
+        const mizu_parameter_descriptor_t integer_descriptor = {
+            .id = 3U,
+            .name = "bounded",
+            .unit = "",
+            .type = MIZU_PARAMETER_VALUE_INT32,
+            .minimum = {.type = MIZU_PARAMETER_VALUE_INT32, .data.int32_value = 0},
+            .maximum = {.type = MIZU_PARAMETER_VALUE_INT32, .data.int32_value = 10},
+            .step = {.type = MIZU_PARAMETER_VALUE_INT32, .data.int32_value = 1},
+            .decimals = 0U,
+            .writable = true,
+            .get = test_get_count,
+            .set = test_set_count,
+            .context = &state,
+        };
+        const mizu_parameter_value_t integer_step = {
+            MIZU_PARAMETER_VALUE_INT32,
+            {.int32_value = 11},
+        };
+
+        result = (mizu_parameter_value_t){
+            MIZU_PARAMETER_VALUE_INT32,
+            {.int32_value = 77},
+        };
+        TEST_ASSERT(mizu_parameter_scale_step(&integer_descriptor, &integer_step, 0, &result) ==
+                    MIZU_STATUS_INVALID_ARGUMENT);
+        TEST_ASSERT(result.data.int32_value == 77);
+    }
+    {
+        const mizu_parameter_descriptor_t unsigned_descriptor = {
+            .id = 4U,
+            .name = "bounded_unsigned",
+            .unit = "",
+            .type = MIZU_PARAMETER_VALUE_UINT32,
+            .minimum = {.type = MIZU_PARAMETER_VALUE_UINT32, .data.uint32_value = 0U},
+            .maximum = {.type = MIZU_PARAMETER_VALUE_UINT32, .data.uint32_value = 10U},
+            .step = {.type = MIZU_PARAMETER_VALUE_UINT32, .data.uint32_value = 1U},
+            .decimals = 0U,
+            .writable = true,
+            .get = test_get_count,
+            .set = test_set_count,
+            .context = &state,
+        };
+        const mizu_parameter_value_t unsigned_step = {
+            MIZU_PARAMETER_VALUE_UINT32,
+            {.uint32_value = 11U},
+        };
+
+        result = (mizu_parameter_value_t){
+            MIZU_PARAMETER_VALUE_UINT32,
+            {.uint32_value = 77U},
+        };
+        TEST_ASSERT(mizu_parameter_scale_step(&unsigned_descriptor, &unsigned_step, 0, &result) ==
+                    MIZU_STATUS_INVALID_ARGUMENT);
+        TEST_ASSERT(result.data.uint32_value == 77U);
+    }
+    return 0;
+}
+
 int main(void)
 {
-    int (* const cases[])(void) = {test_registration_and_access, test_types_and_errors,
-                                   test_registration_failure_and_callback_error};
+    int (* const cases[])(void) = {
+        test_registration_and_access,
+        test_types_and_errors,
+        test_registration_failure_and_callback_error,
+        test_descriptor_and_pure_transforms,
+    };
 
     for (size_t index = 0U; index < sizeof(cases) / sizeof(cases[0]); ++index) {
         const int result = cases[index]();

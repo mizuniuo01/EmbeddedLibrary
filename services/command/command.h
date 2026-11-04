@@ -81,6 +81,21 @@ mizu_status_t mizu_command_service_get_group(const mizu_command_service_t *servi
                                              const mizu_command_group_t **group);
 
 /**
+ * mizu_command_service_get_descriptor_by_id - 获取命令的只读描述符。
+ * @service: 已初始化的命令服务。
+ * @command_id: 已注册的命令 ID。
+ * @descriptor: 接收只读借用指针的输出地址。
+ *
+ * 描述符及其名称由注册表所有者持有，在服务生命周期内保持有效。返回值：成功返回
+ * MIZU_STATUS_OK；空指针返回 MIZU_STATUS_INVALID_ARGUMENT；服务未初始化返回
+ * MIZU_STATUS_NOT_INITIALIZED；ID 未注册返回 MIZU_STATUS_OUT_OF_RANGE。
+ */
+mizu_status_t
+mizu_command_service_get_descriptor_by_id(const mizu_command_service_t *service,
+                                          mizu_command_id_t command_id,
+                                          const mizu_command_descriptor_t **descriptor);
+
+/**
  * mizu_command_service_execute - 按稳定 ID 同步执行一次命令。
  * @service: 已初始化的服务对象。
  * @command_id: 已注册或待查询的命令 ID。

@@ -19,6 +19,7 @@
 - `MIZU_STATUS_BUSY` 表示动作尚未完成，不表示 command 服务正在阻塞等待。
 - 未注册 ID 返回 `MIZU_STATUS_OUT_OF_RANGE`，并同样记录到最近结果快照。
 - 最近快照只保存命令 ID、状态、序号和是否已有结果。
+- `get_descriptor_by_id()` 供菜单等调用方按稳定 ID 借用只读命令描述符。
 - TSan 或主机测试通过不代表 command 支持并发调用。
 
 ## 菜单关系
