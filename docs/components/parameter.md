@@ -9,7 +9,7 @@
 - getter 必须存在；只读参数没有 setter；可写参数必须有 setter。
 - setter 负责实际参数校验、原子应用和跨字段一致性。
 - 服务只在主循环或普通任务上下文串行调用，不提供锁或 ISR 安全。
-- `init()` 只调用一次，成功后注册表在整个服务生命周期内保持不变。
+- `init()` 只调用一次，成功后注册表在整个服务生命周期内保持不变；已初始化对象再次 init 应返回 `MIZU_STATUS_INVALID_STATE` 并保持旧注册表。当前实现尚待修复，见 `REVIEW-S5-001`。
 
 ## 参数模型
 
@@ -25,6 +25,9 @@
 - 数值参数按步长调整并钳制到范围；bool 的正步数设为 true，负步数设为 false，零步数不改变。
 - 初始化会读取并校验每个参数当前值。
 - getter/setter 返回的状态原样向上传播。
+- getter 每次直接读取业务 owner 的已生效配置，不使用 service 当前值缓存；getter 必须同步、轻量且非阻塞。实时传感器或监测数据不注册为 parameter。
+- setter 成功返回前必须已经把新值应用到真实业务对象或活动控制器；只更新显示副本不构成成功。
+- parameter service 只执行单参数的类型、范围、步长和权限校验。跨字段整体校验或事务提交只在业务 owner 存在实际关联约束时由 owner 实现，不作为 service 的统一要求。
 - `get_descriptor_by_id()` 返回注册表中的只读借用描述符。
 - `adjust_value()` 和 `scale_step()` 是无状态纯变换：不读取或提交业务参数，也不拥有菜单草稿。
 - `adjust_value()` 的类型或步长组合错误返回 `MIZU_STATUS_INVALID_ARGUMENT`，当前值越界返回
