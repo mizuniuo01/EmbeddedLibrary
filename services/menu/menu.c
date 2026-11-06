@@ -212,7 +212,13 @@ mizu_status_t mizu_menu_init(mizu_menu_service_t *menu, const mizu_menu_config_t
     mizu_status_t status;
     size_t parameter_count;
 
-    if ((menu == NULL) || (config == NULL) || !mizu_menu_text_is_valid(config->root_title) ||
+    if (menu == NULL) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    if (menu->initialized) {
+        return MIZU_STATUS_INVALID_STATE;
+    }
+    if ((config == NULL) || !mizu_menu_text_is_valid(config->root_title) ||
         (config->root_items == NULL) || (config->root_item_count == 0U) ||
         (config->parameters == NULL) || (config->commands == NULL) ||
         (config->step_cache == NULL) || (config->feedback_duration_ms == 0U) ||

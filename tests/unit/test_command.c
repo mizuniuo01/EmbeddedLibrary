@@ -89,6 +89,7 @@ static int test_registration_errors(void)
     const mizu_command_group_t invalid_handler_group = {13U, "invalid", &invalid_handler_command,
                                                         1U};
     mizu_command_service_t before = {0};
+    mizu_command_service_t invalid_service = {0};
 
     TEST_ASSERT(mizu_command_service_get_group_count(&service, NULL) ==
                 MIZU_STATUS_INVALID_ARGUMENT);
@@ -97,15 +98,16 @@ static int test_registration_errors(void)
     TEST_ASSERT(mizu_command_service_init(&service, NULL, 1U) == MIZU_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT(mizu_command_service_init(&service, &group, 1U) == MIZU_STATUS_OK);
     before = service;
-    TEST_ASSERT(mizu_command_service_init(&service, duplicate_groups, 2U) ==
-                MIZU_STATUS_INVALID_ARGUMENT);
+    TEST_ASSERT(mizu_command_service_init(&service, &group, 1U) == MIZU_STATUS_INVALID_STATE);
     TEST_ASSERT(service.groups == before.groups);
-    TEST_ASSERT(service.initialized == before.initialized);
-    TEST_ASSERT(mizu_command_service_init(&service, &duplicate_command_group, 1U) ==
+    TEST_ASSERT(service.snapshot.sequence == before.snapshot.sequence);
+    TEST_ASSERT(mizu_command_service_init(&invalid_service, duplicate_groups, 2U) ==
                 MIZU_STATUS_INVALID_ARGUMENT);
-    TEST_ASSERT(mizu_command_service_init(&service, &invalid_name_group, 1U) ==
+    TEST_ASSERT(mizu_command_service_init(&invalid_service, &duplicate_command_group, 1U) ==
                 MIZU_STATUS_INVALID_ARGUMENT);
-    TEST_ASSERT(mizu_command_service_init(&service, &invalid_handler_group, 1U) ==
+    TEST_ASSERT(mizu_command_service_init(&invalid_service, &invalid_name_group, 1U) ==
+                MIZU_STATUS_INVALID_ARGUMENT);
+    TEST_ASSERT(mizu_command_service_init(&invalid_service, &invalid_handler_group, 1U) ==
                 MIZU_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT(mizu_command_service_get_group(&service, 1U, &(const mizu_command_group_t *){0}) ==
                 MIZU_STATUS_OUT_OF_RANGE);

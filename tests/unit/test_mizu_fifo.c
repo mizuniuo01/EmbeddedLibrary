@@ -8,7 +8,7 @@
 
 static int test_initialization(void)
 {
-    mizu_fifo_t fifo;
+    mizu_fifo_t fifo = {0};
     mizu_fifo_t uninitialized = {0};
     uint8_t storage[3] = {0U};
 
@@ -21,6 +21,14 @@ static int test_initialization(void)
     TEST_ASSERT(fifo.read_index == 0U);
     TEST_ASSERT(fifo.write_index == 0U);
     TEST_ASSERT(fifo.initialized);
+    {
+        uint8_t replacement_storage[3] = {0U};
+
+        TEST_ASSERT(mizu_fifo_init(&fifo, replacement_storage, sizeof(replacement_storage)) ==
+                    MIZU_STATUS_INVALID_STATE);
+        TEST_ASSERT(fifo.storage == storage);
+        TEST_ASSERT(fifo.storage_size == sizeof(storage));
+    }
     return 0;
 }
 

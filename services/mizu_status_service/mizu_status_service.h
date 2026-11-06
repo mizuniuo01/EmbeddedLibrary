@@ -24,13 +24,13 @@ typedef struct {
 
 /**
  * mizu_status_service_init - 绑定并清空调用方提供的固定记录数组。
- * @service: 调用方拥有的服务对象，不要求预先清零。
+ * @service: 调用方拥有且首次调用前已零初始化的服务对象。
  * @records: 调用方长期持有的记录数组。
  * @record_count: 记录数组的实际元素数，必须大于零。
  *
  * 只在装配阶段调用一次；服务不分配、不释放、不隐藏创建存储。
  * 服务使用 source_id 为零表示空槽；记录数组必须在服务生命周期内保持有效，且不得与
- * service 对象重叠。返回值：成功返回 MIZU_STATUS_OK；任一指针为空或 record_count 为零时
+ * service 对象重叠。已初始化对象再次调用返回 MIZU_STATUS_INVALID_STATE；成功返回 MIZU_STATUS_OK；任一指针为空或 record_count 为零时
  * 返回 MIZU_STATUS_INVALID_ARGUMENT。失败时服务对象和记录数组保持不变。仅允许在装配阶段
  * 调用一次；所有接口均要求调用方在同一串行执行上下文中调用，不提供并发同步或 ISR 安全保证。
  */

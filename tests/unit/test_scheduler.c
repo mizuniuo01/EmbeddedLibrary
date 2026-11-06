@@ -60,6 +60,7 @@ static int test_initialization(void)
                                (size_t)UINT16_MAX + 1U) == MIZU_STATUS_OUT_OF_RANGE);
 
     TEST_ASSERT(scheduler_init(&scheduler, NULL, 0U, NULL, 0U) == MIZU_STATUS_OK);
+    TEST_ASSERT(scheduler_init(&scheduler, NULL, 0U, NULL, 0U) == MIZU_STATUS_INVALID_STATE);
     TEST_ASSERT(scheduler_update(&scheduler, 0U) == MIZU_STATUS_OK);
     TEST_ASSERT(scheduler_run(&scheduler) == MIZU_STATUS_OK);
     return 0;

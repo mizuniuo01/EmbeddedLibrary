@@ -43,7 +43,13 @@ static size_t mizu_fifo_free(const mizu_fifo_t *fifo)
 
 mizu_status_t mizu_fifo_init(mizu_fifo_t *fifo, uint8_t *storage, size_t storage_size)
 {
-    if ((fifo == NULL) || (storage == NULL) || (storage_size < 2U)) {
+    if (fifo == NULL) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    if (fifo->initialized) {
+        return MIZU_STATUS_INVALID_STATE;
+    }
+    if ((storage == NULL) || (storage_size < 2U)) {
         return MIZU_STATUS_INVALID_ARGUMENT;
     }
     fifo->storage = storage;

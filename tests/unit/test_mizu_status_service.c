@@ -78,6 +78,14 @@ static int test_invalid_and_non_consuming_queries(void)
     TEST_ASSERT(mizu_status_service_count(&service, NULL) == MIZU_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT(mizu_status_service_report(&service, 1U, MIZU_STATUS_INTERNAL_ERROR) ==
                 MIZU_STATUS_OK);
+    {
+        mizu_status_record_t replacement_records[1] = {0};
+
+        TEST_ASSERT(mizu_status_service_init(&service, replacement_records, 1U) ==
+                    MIZU_STATUS_INVALID_STATE);
+        TEST_ASSERT(mizu_status_service_get_by_source(&service, 1U, &record) == MIZU_STATUS_OK);
+        TEST_ASSERT(record.status == MIZU_STATUS_INTERNAL_ERROR);
+    }
     TEST_ASSERT(mizu_status_service_report(&service, 1U, MIZU_STATUS_OK) ==
                 MIZU_STATUS_INVALID_ARGUMENT);
     TEST_ASSERT(mizu_status_service_clear(&service, 0U) == MIZU_STATUS_INVALID_ARGUMENT);

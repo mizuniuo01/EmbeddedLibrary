@@ -69,12 +69,12 @@ typedef struct {
 
 /**
  * mizu_parameter_service_init - 验证并绑定静态参数注册表。
- * @service: 调用方拥有的服务对象，不要求预先清零。
+ * @service: 调用方拥有且首次调用前已零初始化的服务对象。
  * @groups: 调用方长期持有的静态分组数组。
  * @group_count: @groups 的实际元素数，初始化后不可更换。
  *
  * 只在装配阶段调用一次；函数读取每个 getter 的当前值并验证注册表。
- * 返回值：成功返回 MIZU_STATUS_OK；结构参数或重复 ID 错误返回
+ * 已初始化对象再次调用返回 MIZU_STATUS_INVALID_STATE；成功返回 MIZU_STATUS_OK；结构参数或重复 ID 错误返回
  * MIZU_STATUS_INVALID_ARGUMENT；当前值或数值元数据非法返回 MIZU_STATUS_INVALID_DATA；
  * 回调错误原样传播。失败时服务对象保持不变。
  */

@@ -12,6 +12,7 @@
 ## 存储
 
 - 记录数组应由 Composition Root/Application 或状态 owner 在其 `.c` 文件内以 `static` 静态提供；`source_id == 0` 表示空槽。外部业务模块不直接接触记录数组。
+- status service 实例首次初始化前必须零初始化；可使用 `static`、`= {0}` 或显式清零。
 - 服务只借用记录数组，不分配、不释放、不创建隐藏全局存储；记录数组必须在服务生命周期内保持有效，且不得与服务对象重叠。
 - 每个来源最多保存一条当前错误记录；重复上报更新原记录。
 - 新来源使用首个空槽；容量耗尽返回 `MIZU_STATUS_FULL`，不覆盖其他来源。
@@ -35,4 +36,4 @@ static mizu_status_record_t s_status_records[4];
 - `report()` 不接受 `MIZU_STATUS_OK`；恢复使用 `clear()`。
 - 服务不保存时间、严重级别、业务载荷或错误历史。
 - `get_by_source()` 用于稳定来源查询；`get_at()` 只用于遍历当前槽位，槽位顺序不代表来源优先级。
-- `mizu_status_service_init()` 只允许一次成功初始化；重复初始化应返回 `MIZU_STATUS_INVALID_STATE` 并保持旧记录和绑定。当前实现尚待修复，见 `REVIEW-S7-001`。
+- `mizu_status_service_init()` 只允许一次成功初始化；首次调用前实例必须零初始化，重复初始化返回 `MIZU_STATUS_INVALID_STATE` 并保持旧记录和绑定。

@@ -177,14 +177,14 @@ typedef struct {
 
 /**
  * mizu_menu_init - 验证并绑定静态菜单描述和服务依赖。
- * @menu: 调用方拥有的菜单实例，不要求预先清零。
+ * @menu: 调用方拥有且首次调用前已零初始化的菜单实例。
  * @config: 静态描述、服务依赖、步长缓存和反馈时长配置。
  *
  * 只在装配阶段调用一次。菜单借用所有指针，不分配或释放资源；描述表、文本、服务和缓存
  * 必须在菜单生命周期内保持有效。步长缓存元素数必须等于参数服务注册参数总数。所有菜单
  * 接口只能在同一主循环或已同步的普通任务上下文串行调用，不支持 ISR、并发或重入。
- * 返回值：成功返回 MIZU_STATUS_OK；结构或绑定非法返回 MIZU_STATUS_INVALID_ARGUMENT；依赖服务
- * 未初始化返回 MIZU_STATUS_NOT_INITIALIZED；ID 未注册或缓存数量错误返回
+ * 已初始化对象再次调用返回 MIZU_STATUS_INVALID_STATE；成功返回 MIZU_STATUS_OK；结构或绑定非法
+ * 返回 MIZU_STATUS_INVALID_ARGUMENT；依赖服务未初始化返回 MIZU_STATUS_NOT_INITIALIZED；ID 未注册或缓存数量错误返回
  * MIZU_STATUS_OUT_OF_RANGE。失败时菜单对象和步长缓存保持不变。
  */
 mizu_status_t mizu_menu_init(mizu_menu_service_t *menu, const mizu_menu_config_t *config);

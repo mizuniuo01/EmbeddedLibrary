@@ -7,10 +7,9 @@
 - FIFO 对象和 storage 应由上层 Services/communication 或其他明确的 owner 模块在其 `.c` 文件内以
   `static` 持有；业务调用方不直接接触 FIFO 对象、storage 或游标。owner 通过更高层通信 API
   对外提供业务语义。
-- FIFO 对象在调用 `mizu_fifo_init()` 前不需要清零；初始化会完整建立对象状态。
+- FIFO 对象首次调用 `mizu_fifo_init()` 前必须零初始化；可使用 `static`、`= {0}` 或显式清零。
 - `mizu_fifo_init()` 在装配阶段只调用一次；已确认的目标契约是不提供 reset、deinit 或运行期更换
-  storage，重复初始化应返回 `MIZU_STATUS_INVALID_STATE` 并保持原对象不变。当前实现尚待修复，
-  见 `REVIEW-S2-001`。
+  storage，重复初始化应返回 `MIZU_STATUS_INVALID_STATE` 并保持原对象不变。
 - storage 大小为 `storage_size`，必须至少为 2；实现保留一个空槽，因此实际可用容量是 `storage_size - 1`。
 - owner 保证 FIFO 对象、storage、DMA 缓冲区、写入输入区和读取输出区互不重叠，并保证 storage
   生命周期有效；mizu_fifo 不执行通用地址范围检测。

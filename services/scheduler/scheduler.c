@@ -105,7 +105,9 @@ mizu_status_t scheduler_init(scheduler_t *scheduler, scheduler_slot_t *slots, si
     if (scheduler == NULL) {
         return MIZU_STATUS_INVALID_ARGUMENT;
     }
-    scheduler->initialized = false;
+    if (scheduler->initialized) {
+        return MIZU_STATUS_INVALID_STATE;
+    }
 
     if ((slot_capacity != task_count) || ((task_count > 0U) && (slots == NULL))) {
         return MIZU_STATUS_INVALID_ARGUMENT;

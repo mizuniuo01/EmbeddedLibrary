@@ -59,14 +59,14 @@ typedef struct {
 
 /**
  * scheduler_init - 绑定固定任务配置和运行存储。
- * @scheduler: 调用方拥有、调用前已清零的实例。
+ * @scheduler: 调用方拥有、首次调用前已零初始化的实例。
  * @slots: 调用方提供的运行槽数组。
  * @slot_capacity: @slots 的实际元素数量。
  * @configs: 调用方长期持有的只读配置表。
  * @task_count: @configs 的实际元素数量，必须等于 @slot_capacity。
  *
  * 调用方须使用实际数组长度提供两个数量；C 接口无法验证指针背后的容量。
- * 返回值：成功返回 MIZU_STATUS_OK；参数无效返回 MIZU_STATUS_INVALID_ARGUMENT；
+ * 已初始化实例再次调用返回 MIZU_STATUS_INVALID_STATE；成功返回 MIZU_STATUS_OK；参数无效返回 MIZU_STATUS_INVALID_ARGUMENT；
  * 数量或周期越界返回 MIZU_STATUS_OUT_OF_RANGE。
  */
 mizu_status_t scheduler_init(scheduler_t *scheduler, scheduler_slot_t *slots, size_t slot_capacity,

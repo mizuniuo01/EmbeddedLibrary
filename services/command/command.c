@@ -67,7 +67,13 @@ mizu_status_t mizu_command_service_init(mizu_command_service_t *service,
 {
     size_t total_count = 0U;
 
-    if ((service == NULL) || (groups == NULL) || (group_count == 0U)) {
+    if (service == NULL) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    if (service->initialized) {
+        return MIZU_STATUS_INVALID_STATE;
+    }
+    if ((groups == NULL) || (group_count == 0U)) {
         return MIZU_STATUS_INVALID_ARGUMENT;
     }
     if (group_count > MIZU_COMMAND_MAX_GROUPS) {

@@ -21,9 +21,10 @@
 ## 所有权和生命周期
 
 - 调用方静态持有菜单实例、根描述表、组/条目表、文本和运行期步长缓存。
+- menu 实例首次初始化前必须零初始化；可使用 `static`、`= {0}` 或显式清零。
 - menu 只借用这些对象，不分配、不释放，也不建立隐藏固定容量。
 - 每个输出交互通道使用独立菜单实例；多个实例可共享 parameter/command，但调用方必须串行访问共享服务。
-- `mizu_menu_init()` 在装配阶段只允许一次成功调用；已初始化对象再次 init 应返回 `MIZU_STATUS_INVALID_STATE` 并保持旧菜单状态、绑定和 step cache。当前实现尚待修复，见 `REVIEW-S8-001`。运行期不支持 reset、deinit 或重新注册。
+- `mizu_menu_init()` 在装配阶段只允许一次成功调用；首次调用前实例必须零初始化，已初始化对象再次 init 返回 `MIZU_STATUS_INVALID_STATE` 并保持旧菜单状态、绑定和 step cache。运行期不支持 reset、deinit 或重新注册。
 - 一个 menu 实例对应一个交互/输出通道；不同屏幕或蓝牙会话使用独立实例和独立 step cache。
 
 ## 输入和输出边界

@@ -37,7 +37,13 @@ static mizu_status_t mizu_status_service_check(const mizu_status_service_t *serv
 mizu_status_t mizu_status_service_init(mizu_status_service_t *service,
                                        mizu_status_record_t *records, size_t record_count)
 {
-    if ((service == NULL) || (records == NULL) || (record_count == 0U)) {
+    if (service == NULL) {
+        return MIZU_STATUS_INVALID_ARGUMENT;
+    }
+    if (service->initialized) {
+        return MIZU_STATUS_INVALID_STATE;
+    }
+    if ((records == NULL) || (record_count == 0U)) {
         return MIZU_STATUS_INVALID_ARGUMENT;
     }
     for (size_t index = 0U; index < record_count; ++index) {

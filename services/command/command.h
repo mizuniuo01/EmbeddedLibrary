@@ -44,13 +44,13 @@ typedef struct {
 
 /**
  * mizu_command_service_init - 验证并绑定静态命令注册表。
- * @service: 调用方拥有的服务对象，不要求预先清零。
+ * @service: 调用方拥有且首次调用前已零初始化的服务对象。
  * @groups: 调用方长期持有的静态命令分组数组。
  * @group_count: @groups 的实际元素数，初始化后不可更换。
  *
  * 只在装配阶段调用一次；服务只借用注册表、名称、handler 和 context。
  * 只允许在主循环或普通任务上下文调用；服务不提供同步。返回值：成功返回 MIZU_STATUS_OK；
- * 结构参数或重复 ID 返回 MIZU_STATUS_INVALID_ARGUMENT；数量超出固定容量返回
+ * 已初始化对象再次调用返回 MIZU_STATUS_INVALID_STATE；结构参数或重复 ID 返回 MIZU_STATUS_INVALID_ARGUMENT；数量超出固定容量返回
  * MIZU_STATUS_OUT_OF_RANGE；失败时对象保持不变。
  */
 mizu_status_t mizu_command_service_init(mizu_command_service_t *service,

@@ -119,6 +119,14 @@ static int test_registration_and_access(void)
     size_t group_count;
 
     TEST_ASSERT(mizu_parameter_service_init(&service, &group, 1U) == MIZU_STATUS_OK);
+    {
+        const mizu_parameter_group_t replacement_group = {11U, "replacement", &descriptor, 1U};
+
+        TEST_ASSERT(mizu_parameter_service_init(&service, &replacement_group, 1U) ==
+                    MIZU_STATUS_INVALID_STATE);
+        TEST_ASSERT(mizu_parameter_service_get_group(&service, 0U, &view) == MIZU_STATUS_OK);
+        TEST_ASSERT(view == &group);
+    }
     TEST_ASSERT(mizu_parameter_service_get_group_count(&service, &group_count) == MIZU_STATUS_OK);
     TEST_ASSERT(group_count == 1U);
     TEST_ASSERT(mizu_parameter_service_get_group(&service, 0U, &view) == MIZU_STATUS_OK);

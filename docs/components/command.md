@@ -5,6 +5,7 @@
 ## 协议和所有权
 
 - 调用方提供静态命令分组、名称、handler 和 context。
+- command service 实例首次初始化前必须零初始化；可使用 `static`、`= {0}` 或显式清零。
 - 服务只借用注册表、字符串和 context，不复制、不释放。
 - handler 只接收 context，不接收运行时参数；具体动作由调用方注册。
 - 参数调整必须由 parameter 服务负责，不得通过 command 内置参数操作绕行。
@@ -13,7 +14,7 @@
 
 ## 生命周期和执行
 
-- `init()` 在装配阶段只调用一次；已初始化对象再次 init 应返回 `MIZU_STATUS_INVALID_STATE` 并保持旧命令表和快照。当前实现尚待修复，见 `REVIEW-S6-001`。不支持运行期注册、注销或替换。
+- `init()` 在装配阶段只调用一次；首次调用前实例必须零初始化，已初始化对象再次 init 返回 `MIZU_STATUS_INVALID_STATE` 并保持旧命令表和快照。不支持运行期注册、注销或替换。
 - `execute()` 按稳定命令 ID 同步调用一次 handler。
 - handler 返回 `BUSY` 时原样返回并记录；command 不自动轮询或保存活动命令。
 - `MIZU_STATUS_BUSY` 表示动作尚未完成，不表示 command 服务正在阻塞等待。

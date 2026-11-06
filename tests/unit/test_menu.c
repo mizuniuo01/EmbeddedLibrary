@@ -116,6 +116,22 @@ static int test_init_and_step_cache(void)
     TEST_ASSERT(mizu_parameter_service_init(&parameters, &parameter_group, 1U) == MIZU_STATUS_OK);
     TEST_ASSERT(mizu_command_service_init(&commands, &command_group, 1U) == MIZU_STATUS_OK);
     TEST_ASSERT(mizu_menu_init(&menu, &config) == MIZU_STATUS_OK);
+    {
+        mizu_parameter_value_t replacement_cache[1] = {0};
+
+        TEST_ASSERT(mizu_menu_init(&menu, &(mizu_menu_config_t){
+                                              .root_title = {"Replacement", 11U},
+                                              .root_items = roots,
+                                              .root_item_count = 2U,
+                                              .parameters = &parameters,
+                                              .commands = &commands,
+                                              .step_cache = replacement_cache,
+                                              .step_cache_count = 1U,
+                                              .feedback_duration_ms = 1000U,
+                                          }) == MIZU_STATUS_INVALID_STATE);
+        TEST_ASSERT(menu.config.root_items == roots);
+        TEST_ASSERT(menu.config.step_cache == step_cache);
+    }
     TEST_ASSERT(menu.initialized);
     TEST_ASSERT(menu.state == MIZU_MENU_STATE_ROOT);
     TEST_ASSERT(step_cache[0].type == MIZU_PARAMETER_VALUE_FLOAT);

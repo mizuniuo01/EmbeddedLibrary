@@ -18,12 +18,13 @@ typedef struct {
 
 /**
  * mizu_fifo_init - 绑定调用方提供的存储区。
- * @fifo: 待初始化的 FIFO 对象，不要求预先清零。
+ * @fifo: 待初始化且首次调用前已零初始化的 FIFO 对象。
  * @storage: 调用方长期持有的字节存储区。
  * @storage_size: @storage 的字节数，必须至少为 2。
  *
  * 仅在装配阶段调用一次；对象和存储区不得重叠。函数不阻塞。
- * 返回值：成功返回 MIZU_STATUS_OK；参数无效返回 MIZU_STATUS_INVALID_ARGUMENT。
+ * 已初始化对象再次调用返回 MIZU_STATUS_INVALID_STATE；成功返回 MIZU_STATUS_OK；参数无效返回
+ * MIZU_STATUS_INVALID_ARGUMENT。
  */
 mizu_status_t mizu_fifo_init(mizu_fifo_t *fifo, uint8_t *storage, size_t storage_size);
 
